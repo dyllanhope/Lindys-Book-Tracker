@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { ExternalSource } from '@/lib/types'
 import { findOrCreateTag } from '@/lib/tags'
 import { getOpenLibraryWork } from './openLibrary'
+import { getGoogleVolume } from './googleBooks'
 
 export interface ImportInput {
   title: string
@@ -36,6 +37,19 @@ export async function importExternalBook(
       }
     } catch {
       // enrichment is best-effort; proceed with whatever we have
+    }
+  } else if (input.source === 'google' && genres.length === 0) {
+    // Google's search endpoint returns only a coarse category (e.g. "Fiction",
+    // which we strip), so a quick-add carries no genres. The full volume detail
+    // has the rich BISAC list — fetch it so genres still transfer.
+    try {
+      const full = await getGoogleVolume(input.externalId)
+      if (full) {
+        if (!description) description = full.description
+        if (full.categories.length > 0) genres = full.categories
+      }
+    } catch {
+      // best-effort; proceed with whatever we have
     }
   }
 

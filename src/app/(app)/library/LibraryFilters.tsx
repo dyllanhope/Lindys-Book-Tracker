@@ -93,7 +93,12 @@ export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly, sort }:
   }
 
   const grouped = TAG_CATEGORIES
-    .map((cat) => ({ ...cat, tags: tags.filter((t) => t.category === cat.value) }))
+    .map((cat) => ({
+      ...cat,
+      tags: tags
+        .filter((t) => t.category === cat.value)
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+    }))
     .filter((g) => g.tags.length > 0)
 
   const activeTags = activeTagIds
