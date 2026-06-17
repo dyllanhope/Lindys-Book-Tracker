@@ -47,13 +47,12 @@ export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly, sort }:
 
   useEffect(() => setMounted(true), [])
 
-  // Lock background scroll + allow Escape to close while the mobile drawer is open.
+  // Lock background scroll + allow Escape to close while the drawer is open.
   useEffect(() => {
     if (!open) return
-    const isMobile = window.matchMedia('(max-width: 767px)').matches
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false) }
     window.addEventListener('keydown', onKey)
-    if (isMobile) document.body.style.overflow = 'hidden'
+    document.body.style.overflow = 'hidden'
     return () => {
       window.removeEventListener('keydown', onKey)
       document.body.style.overflow = ''
@@ -225,20 +224,11 @@ export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly, sort }:
         )}
       </div>
 
-      {/* Desktop: inline expandable panel */}
-      <div className="hidden md:block">
-        {open && (
-          <div style={{ marginTop: 12, background: 'var(--card)', borderRadius: 18, padding: '4px 20px', border: '1px solid rgba(150,130,110,0.12)' }}>
-            {filterSections}
-          </div>
-        )}
-      </div>
-
-      {/* Mobile: slide-out drawer with backdrop. Portaled to <body> so it escapes
-          the library page's transformed (fade-up) stacking context and renders
-          above the bottom nav. */}
+      {/* Slide-out drawer with backdrop, on all viewports. Portaled to <body> so
+          it escapes the library page's transformed (fade-up) stacking context and
+          renders above the bottom nav. */}
       {mounted && createPortal(
-      <div className="md:hidden">
+      <div>
         {/* Backdrop */}
         <div
           onClick={close}
