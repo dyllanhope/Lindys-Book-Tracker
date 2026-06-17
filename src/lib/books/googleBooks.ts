@@ -1,4 +1,5 @@
 import type { ExternalBook } from '@/lib/types'
+import { fetchWithRetry } from './http'
 
 interface GoogleVolume {
   id: string
@@ -49,7 +50,7 @@ function volumeToExternalBook(item: GoogleVolume): ExternalBook {
 
 /** Fetch a single Google volume by id (full volumeInfo). Throws on 429 like search. */
 export async function getGoogleVolume(id: string): Promise<ExternalBook | null> {
-  const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(id)}`, {
+  const res = await fetchWithRetry(`https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(id)}`, {
     next: { revalidate: 3600 },
   })
   if (res.status === 429) throw new Error('Google Books quota exceeded (429)')
@@ -60,7 +61,7 @@ export async function getGoogleVolume(id: string): Promise<ExternalBook | null> 
 
 export async function searchGoogleBooks(query: string): Promise<ExternalBook[]> {
   const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`
-  const res = await fetch(url, { next: { revalidate: 60 } })
+  const res = await fetchWithRetry(url, { next: { revalidate: 60 } })
   // Throw on rate limiting so callers can distinguish "quota hit" from "no results"
   // and fall back to another source.
   if (res.status === 429) throw new Error('Google Books quota exceeded (429)')
