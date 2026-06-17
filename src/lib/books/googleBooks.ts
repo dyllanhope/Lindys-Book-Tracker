@@ -29,6 +29,35 @@ function parseCategories(categories: string[] | undefined): string[] {
   return [...out.values()]
 }
 
+function volumeToExternalBook(item: GoogleVolume): ExternalBook {
+  const info = item.volumeInfo
+  const isbn = info.industryIdentifiers?.find(
+    (i) => i.type === 'ISBN_13' || i.type === 'ISBN_10'
+  )?.identifier ?? null
+  const cover = (info.imageLinks?.thumbnail ?? null)?.replace('http:', 'https:') ?? null
+  return {
+    title: info.title ?? 'Unknown Title',
+    author: info.authors?.join(', ') ?? '',
+    isbn,
+    description: info.description ?? null,
+    coverUrl: cover,
+    source: 'google' as const,
+    externalId: item.id,
+    categories: parseCategories(info.categories),
+  }
+}
+
+/** Fetch a single Google volume by id (full volumeInfo). Throws on 429 like search. */
+export async function getGoogleVolume(id: string): Promise<ExternalBook | null> {
+  const res = await fetch(`https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(id)}`, {
+    next: { revalidate: 3600 },
+  })
+  if (res.status === 429) throw new Error('Google Books quota exceeded (429)')
+  if (!res.ok) return null
+  const item = (await res.json()) as GoogleVolume
+  return volumeToExternalBook(item)
+}
+
 export async function searchGoogleBooks(query: string): Promise<ExternalBook[]> {
   const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`
   const res = await fetch(url, { next: { revalidate: 60 } })
@@ -40,21 +69,5 @@ export async function searchGoogleBooks(query: string): Promise<ExternalBook[]> 
   const data = await res.json()
   const items: GoogleVolume[] = data.items ?? []
 
-  return items.map((item) => {
-    const info = item.volumeInfo
-    const isbn = info.industryIdentifiers?.find(
-      (i) => i.type === 'ISBN_13' || i.type === 'ISBN_10'
-    )?.identifier ?? null
-    const cover = info.imageLinks?.thumbnail?.replace('http:', 'https:') ?? null
-    return {
-      title: info.title ?? 'Unknown Title',
-      author: info.authors?.join(', ') ?? '',
-      isbn,
-      description: info.description ?? null,
-      coverUrl: cover,
-      source: 'google' as const,
-      externalId: item.id,
-      categories: parseCategories(info.categories),
-    }
-  })
+  return items.map(volumeToExternalBook)
 }
