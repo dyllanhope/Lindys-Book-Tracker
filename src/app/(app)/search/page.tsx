@@ -1,5 +1,6 @@
 import { searchBooks } from '@/lib/books/search'
 import { createClient } from '@/lib/supabase/server'
+import { findOrCreateTag } from '@/lib/tags'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { coverGradient } from '@/lib/coverGradient'
@@ -10,7 +11,7 @@ async function importBook(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
-  const { error } = await supabase.from('books').insert({
+  const { data: inserted, error } = await supabase.from('books').insert({
     user_id: user.id,
     title: formData.get('title') as string,
     author: (formData.get('author') as string) || null,
@@ -19,7 +20,18 @@ async function importBook(formData: FormData) {
     cover_url: (formData.get('coverUrl') as string) || null,
     external_source: formData.get('source') as string,
     external_id: formData.get('externalId') as string,
-  })
+  }).select('id').single()
+
+  // Auto-create genre tags from the source's categories and link them.
+  if (inserted) {
+    let categories: string[] = []
+    try { categories = JSON.parse((formData.get('categories') as string) || '[]') } catch {}
+    for (const name of categories) {
+      const tag = await findOrCreateTag(supabase, user.id, name, 'genre')
+      if (tag) await supabase.from('book_tags').insert({ book_id: inserted.id, tag_id: tag.id })
+    }
+  }
+
   const q = formData.get('q') as string
   const id = formData.get('externalId') as string
   if (error) redirect(`/search?q=${encodeURIComponent(q)}&importError=${encodeURIComponent(error.message)}`)
@@ -99,6 +111,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                           <input type="hidden" name="coverUrl" value={book.coverUrl ?? ''} />
                           <input type="hidden" name="source" value={book.source} />
                           <input type="hidden" name="externalId" value={book.externalId} />
+                          <input type="hidden" name="categories" value={JSON.stringify(book.categories)} />
                           <input type="hidden" name="q" value={q ?? ''} />
                           <button type="submit" style={{ display: 'inline-flex', alignItems: 'center', padding: '7px 14px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, background: 'var(--ink)', color: 'var(--cream)', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-mulish), sans-serif' }}>
                             Add to Library

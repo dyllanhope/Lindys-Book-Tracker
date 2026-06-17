@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { coverGradient } from '@/lib/coverGradient'
-import type { Book, Rating, Note, Collection, RatingCategory, ReadingStatus } from '@/lib/types'
+import { findOrCreateTag, TAG_CATEGORIES, TAG_CATEGORY_LABEL, TAG_CATEGORY_STYLE } from '@/lib/tags'
+import type { Book, Rating, Note, Collection, Tag, RatingCategory, ReadingStatus, TagCategory } from '@/lib/types'
 
 const RATING_CATEGORIES: { key: RatingCategory; label: string }[] = [
   { key: 'plot', label: 'Plot' },
@@ -26,10 +27,12 @@ interface Props {
   notes: Note[]
   collections: Collection[]
   memberCollectionIds: string[]
+  bookTags: Tag[]
+  allTags: Tag[]
   userId: string
 }
 
-export function BookDetail({ book, ratings, notes, collections, memberCollectionIds, userId }: Props) {
+export function BookDetail({ book, ratings, notes, collections, memberCollectionIds, bookTags, allTags, userId }: Props) {
   const [status, setStatus] = useState<ReadingStatus>(book.reading_status)
   const [owned, setOwned] = useState(book.owned)
   const [saving, setSaving] = useState(false)
@@ -42,6 +45,12 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
   const [collectionIds, setCollectionIds] = useState<Set<string>>(new Set(memberCollectionIds))
   const [togglingCol, setTogglingCol] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  const [localTags, setLocalTags] = useState<Tag[]>(bookTags)
+  const [knownTags, setKnownTags] = useState<Tag[]>(allTags)
+  const [tagInput, setTagInput] = useState('')
+  const [tagCategory, setTagCategory] = useState<TagCategory>('genre')
+  const [addingTag, setAddingTag] = useState(false)
 
   async function saveDetails() {
     setSaving(true)
@@ -94,6 +103,27 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
     setTogglingCol(null)
   }
 
+  async function addTag(name: string, category: TagCategory) {
+    const trimmed = name.trim()
+    if (!trimmed || addingTag) return
+    setAddingTag(true)
+    const supabase = createClient()
+    const tag = await findOrCreateTag(supabase, userId, trimmed, category)
+    if (tag && !localTags.some((t) => t.id === tag.id)) {
+      await supabase.from('book_tags').insert({ book_id: book.id, tag_id: tag.id })
+      setLocalTags((prev) => [...prev, tag])
+      setKnownTags((prev) => (prev.some((t) => t.id === tag.id) ? prev : [...prev, tag]))
+    }
+    setTagInput('')
+    setAddingTag(false)
+  }
+
+  async function removeTag(tagId: string) {
+    setLocalTags((prev) => prev.filter((t) => t.id !== tagId))
+    const supabase = createClient()
+    await supabase.from('book_tags').delete().eq('book_id', book.id).eq('tag_id', tagId)
+  }
+
   async function deleteBook() {
     if (!confirm('Delete this book and all its data? This cannot be undone.')) return
     setDeleting(true)
@@ -104,6 +134,16 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
 
   const spice = localRatings['spice'] ?? 0
   const heroColor = coverGradient(book.id).match(/#[A-Fa-f0-9]{6}/g)?.[1] ?? '#E9DAC6'
+
+  const tagIdsSet = new Set(localTags.map((t) => t.id))
+  const tagQuery = tagInput.trim().toLowerCase()
+  const tagSuggestions = knownTags
+    .filter((t) => t.category === tagCategory && !tagIdsSet.has(t.id) && (tagQuery === '' || t.name.toLowerCase().includes(tagQuery)))
+    .slice(0, 6)
+  const exactMatchExists = knownTags.some((t) => t.category === tagCategory && t.name.toLowerCase() === tagQuery)
+  const sortedTags = [...localTags].sort((a, b) =>
+    a.category === b.category ? a.name.localeCompare(b.name) : TAG_CATEGORIES.findIndex((c) => c.value === a.category) - TAG_CATEGORIES.findIndex((c) => c.value === b.category),
+  )
 
   return (
     /* Outer: block on mobile, flex row on desktop */
@@ -237,6 +277,76 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
                 ))}
               </div>
             </div>
+          </div>
+
+          {/* Tags */}
+          <div style={{ marginTop: 22, background: 'var(--card)', borderRadius: 22, padding: '22px 20px', border: '1px solid rgba(150,130,110,0.08)' }}>
+            <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 18, color: 'var(--ink)', fontWeight: 500, marginBottom: 16 }}>Tags</div>
+
+            {/* Current tags */}
+            {sortedTags.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
+                {sortedTags.map((tag) => {
+                  const s = TAG_CATEGORY_STYLE[tag.category]
+                  return (
+                    <span key={tag.id} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 8px 6px 12px', borderRadius: 99, fontSize: 13, fontWeight: 600, background: s.bg, color: s.fg, border: `1px solid ${s.border}` }}>
+                      {tag.name}
+                      <button onClick={() => removeTag(tag.id)} aria-label={`Remove ${tag.name}`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 16, height: 16, borderRadius: 99, border: 'none', background: 'rgba(0,0,0,0.06)', color: s.fg, cursor: 'pointer', padding: 0, lineHeight: 1 }}>
+                        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                      </button>
+                    </span>
+                  )
+                })}
+              </div>
+            )}
+
+            {/* Category selector */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+              {TAG_CATEGORIES.map((cat) => {
+                const active = tagCategory === cat.value
+                return (
+                  <button key={cat.value} type="button" onClick={() => setTagCategory(cat.value)} style={{ padding: '5px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: `1px solid ${active ? 'rgba(150,130,110,0.4)' : 'rgba(150,130,110,0.16)'}`, background: active ? '#F0E8D8' : 'transparent', color: active ? 'var(--ink)' : 'var(--ink-light)', fontFamily: 'var(--font-mulish), sans-serif' }}>
+                    {cat.label}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Add input */}
+            <form
+              onSubmit={(e) => { e.preventDefault(); addTag(tagInput, tagCategory) }}
+              style={{ display: 'flex', gap: 8 }}
+            >
+              <input
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder={`Add a ${TAG_CATEGORY_LABEL[tagCategory].toLowerCase()} tag…`}
+                style={{ flex: 1, border: '1px solid rgba(150,130,110,0.2)', borderRadius: 10, padding: '9px 12px', fontSize: 14, color: '#5a4a42', background: 'var(--cream)', outline: 'none', fontFamily: 'var(--font-mulish), sans-serif' }}
+              />
+              <button
+                type="submit"
+                disabled={!tagInput.trim() || addingTag}
+                style={{ padding: '9px 16px', borderRadius: 10, fontSize: 13, fontWeight: 600, background: 'var(--ink)', color: 'var(--cream)', border: 'none', cursor: tagInput.trim() ? 'pointer' : 'default', opacity: tagInput.trim() && !addingTag ? 1 : 0.4, fontFamily: 'var(--font-mulish), sans-serif' }}
+              >
+                Add
+              </button>
+            </form>
+
+            {/* Suggestions from existing tags */}
+            {(tagSuggestions.length > 0 || (tagQuery !== '' && !exactMatchExists)) && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7, marginTop: 12 }}>
+                {tagSuggestions.map((tag) => (
+                  <button key={tag.id} type="button" onClick={() => addTag(tag.name, tag.category)} style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', background: 'transparent', color: 'var(--ink-light)', border: '1px solid rgba(150,130,110,0.2)', fontFamily: 'var(--font-mulish), sans-serif' }}>
+                    {tag.name}
+                  </button>
+                ))}
+                {tagQuery !== '' && !exactMatchExists && (
+                  <button type="button" onClick={() => addTag(tagInput, tagCategory)} style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', background: 'var(--accent-light)', color: '#C9A18A', border: '1px solid rgba(200,170,130,0.3)', fontFamily: 'var(--font-mulish), sans-serif' }}>
+                    + Create “{tagInput.trim()}”
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Notes */}

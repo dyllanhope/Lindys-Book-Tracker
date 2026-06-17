@@ -1,6 +1,7 @@
 export type ReadingStatus = 'not_started' | 'currently_reading' | 'finished' | 'did_not_finish'
 export type RatingCategory = 'plot' | 'characters' | 'writing' | 'spice'
 export type ExternalSource = 'google' | 'openlibrary' | 'manual'
+export type TagCategory = 'genre' | 'format' | 'mood' | 'custom'
 
 export interface Book {
   id: string
@@ -53,6 +54,19 @@ export interface CollectionBook {
   book_id: string
 }
 
+export interface Tag {
+  id: string
+  user_id: string
+  name: string
+  category: TagCategory
+  created_at: string
+}
+
+export interface BookTag {
+  book_id: string
+  tag_id: string
+}
+
 export interface ExternalBook {
   title: string
   author: string
@@ -61,4 +75,5 @@ export interface ExternalBook {
   coverUrl: string | null
   source: ExternalSource
   externalId: string
+  categories: string[]
 }
