@@ -55,9 +55,9 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
   async function saveDetails() {
     setSaving(true)
     const supabase = createClient()
-    // Fire and don't await — optimistic, DB updates in background
-    supabase.from('books').update({ reading_status: status, owned }).eq('id', book.id)
-    setTimeout(() => setSaving(false), 350)
+    // Supabase query builders are lazy — they only run when awaited.
+    await supabase.from('books').update({ reading_status: status, owned }).eq('id', book.id)
+    setSaving(false)
   }
 
   async function setRating(category: RatingCategory, score: number) {
