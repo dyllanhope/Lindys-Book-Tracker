@@ -13,12 +13,6 @@ const STATUS_CHIPS = [
   { value: 'did_not_finish', label: 'Did not finish' },
 ]
 
-const SORT_LABELS: Record<string, string> = {
-  date_added: 'Recently added',
-  title: 'Title',
-  author: 'Author',
-}
-
 interface SearchParams {
   status?: string; sort?: string; owned?: string; tags?: string
   minRating?: string; minPlot?: string; minCharacters?: string; minWriting?: string; minSpice?: string
@@ -122,22 +116,13 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
           </div>
           <div style={{ fontSize: 13, color: 'var(--ink-light)', marginTop: 7 }}>{books.length} books</div>
         </div>
-        {/* Desktop: filter chips + sort inline */}
+        {/* Desktop: reading-status chips + add */}
         <div className="hidden md:flex items-center gap-3 flex-wrap">
           {STATUS_CHIPS.map((chip) => {
             const active = status === chip.value
             return (
               <a key={chip.value} href={hrefWith({ status: chip.value || undefined })} style={{ padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 600, textDecoration: 'none', background: active ? 'var(--ink)' : 'var(--card)', color: active ? 'var(--cream)' : '#7a6a5e', border: `1px solid ${active ? 'var(--ink)' : 'rgba(150,130,110,0.16)'}` }}>
                 {chip.label}
-              </a>
-            )
-          })}
-          <div style={{ width: 1, height: 24, background: 'rgba(150,130,110,0.2)' }} />
-          {Object.entries(SORT_LABELS).map(([key, label]) => {
-            const active = sort === key
-            return (
-              <a key={key} href={hrefWith({ sort: key !== 'date_added' ? key : undefined })} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, textDecoration: 'none', background: 'var(--card)', border: '1px solid rgba(150,130,110,0.16)', color: active ? 'var(--accent)' : '#7a6a5e' }}>
-                {label}
               </a>
             )
           })}
@@ -158,15 +143,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
           )
         })}
       </div>
-      <div className="flex items-center md:hidden" style={{ marginTop: 10, gap: 6 }}>
-        {Object.entries(SORT_LABELS).map(([key, label]) => {
-          const active = sort === key
-          return (
-            <a key={key} href={hrefWith({ sort: key !== 'date_added' ? key : undefined })} style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, textDecoration: 'none', background: active ? 'var(--accent-light)' : 'transparent', color: active ? 'var(--accent)' : '#B3A595' }}>
-              {label}
-            </a>
-          )
-        })}
+      <div className="flex items-center md:hidden" style={{ marginTop: 10 }}>
         <Link href="/books/new" style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}>+ Add</Link>
       </div>
 
@@ -176,6 +153,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
         activeTagIds={tagIds}
         ratings={{ minRating, minPlot, minCharacters, minWriting, minSpice }}
         ownedOnly={ownedOnly}
+        sort={sort}
       />
 
       {/* Book grid — 3 cols mobile, 5 cols desktop */}
