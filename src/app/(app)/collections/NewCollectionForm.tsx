@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createCollection } from './actions'
+import { CustomColorSwatch } from './CustomColorSwatch'
 import { SHELF_COLORS, DEFAULT_SHELF_COLOR } from '@/lib/shelfColors'
 
 export function NewCollectionForm({ error, compact }: { error?: string; compact?: boolean }) {
@@ -45,7 +46,7 @@ export function NewCollectionForm({ error, compact }: { error?: string; compact?
           </button>
         </div>
         <input type="hidden" name="color" value={color} />
-        <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
           {SHELF_COLORS.map((c) => (
             <button
               key={c}
@@ -66,6 +67,7 @@ export function NewCollectionForm({ error, compact }: { error?: string; compact?
               }}
             />
           ))}
+          <CustomColorSwatch color={color} onChange={setColor} />
         </div>
       </form>
       {error && (

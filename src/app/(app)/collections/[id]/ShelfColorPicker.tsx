@@ -1,9 +1,14 @@
 'use client'
 
+import { useRef } from 'react'
 import { SHELF_COLORS } from '@/lib/shelfColors'
 import { updateCollectionColor } from '../actions'
+import { CustomColorSwatch } from '../CustomColorSwatch'
 
 export function ShelfColorPicker({ id, current }: { id: string; current: string }) {
+  const customFormRef = useRef<HTMLFormElement>(null)
+  const colorInputRef = useRef<HTMLInputElement>(null)
+
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginTop: 14 }}>
       <span style={{ fontSize: 12, color: 'var(--ink-light)', fontWeight: 600, marginRight: 2 }}>Colour</span>
@@ -29,6 +34,19 @@ export function ShelfColorPicker({ id, current }: { id: string; current: string 
           />
         </form>
       ))}
+
+      {/* Custom colour wheel — submits only when a colour is actually picked */}
+      <form action={updateCollectionColor} ref={customFormRef} style={{ display: 'inline-flex' }}>
+        <input type="hidden" name="id" value={id} />
+        <input type="hidden" name="color" ref={colorInputRef} />
+        <CustomColorSwatch
+          color={current}
+          onCommit={(hex) => {
+            if (colorInputRef.current) colorInputRef.current.value = hex
+            customFormRef.current?.requestSubmit()
+          }}
+        />
+      </form>
     </div>
   )
 }

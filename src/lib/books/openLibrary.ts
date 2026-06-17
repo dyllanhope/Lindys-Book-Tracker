@@ -100,8 +100,22 @@ export async function getOpenLibraryWork(olid: string): Promise<OpenLibraryWorkD
   return { title: w.title ?? null, author, description, genres: curateSubjects(w.subjects), coverUrl }
 }
 
-export async function searchOpenLibrary(query: string): Promise<ExternalBook[]> {
-  const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=20`
+interface SearchOpts { author?: string; page?: number; pageSize?: number }
+
+export async function searchOpenLibrary(query: string, opts: SearchOpts = {}): Promise<ExternalBook[]> {
+  const pageSize = opts.pageSize ?? 10
+  const page = opts.page ?? 1
+
+  // Request only the fields we render so OpenLibrary returns a smaller, faster payload.
+  const params = new URLSearchParams({
+    q: query.trim(),
+    page: String(page),
+    limit: String(pageSize),
+    fields: 'key,title,author_name,isbn,first_sentence,cover_i',
+  })
+  if (opts.author?.trim()) params.set('author', opts.author.trim())
+
+  const url = `https://openlibrary.org/search.json?${params.toString()}`
   const res = await fetchWithRetry(url, { next: { revalidate: 60 }, headers: { 'User-Agent': USER_AGENT } })
   if (!res.ok) return []
 

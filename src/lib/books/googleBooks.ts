@@ -59,8 +59,20 @@ export async function getGoogleVolume(id: string): Promise<ExternalBook | null> 
   return volumeToExternalBook(item)
 }
 
-export async function searchGoogleBooks(query: string): Promise<ExternalBook[]> {
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`
+interface SearchOpts { author?: string; page?: number; pageSize?: number }
+
+export async function searchGoogleBooks(query: string, opts: SearchOpts = {}): Promise<ExternalBook[]> {
+  const pageSize = opts.pageSize ?? 10
+  const startIndex = ((opts.page ?? 1) - 1) * pageSize
+
+  // Combine the free-text title query with an optional `inauthor:` qualifier so
+  // an author can narrow results to a specific writer.
+  const terms: string[] = []
+  if (query.trim()) terms.push(query.trim())
+  if (opts.author?.trim()) terms.push(`inauthor:"${opts.author.trim()}"`)
+  const q = terms.join(' ')
+
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&startIndex=${startIndex}&maxResults=${pageSize}`
   const res = await fetchWithRetry(url, { next: { revalidate: 60 } })
   // Throw on rate limiting so callers can distinguish "quota hit" from "no results"
   // and fall back to another source.
