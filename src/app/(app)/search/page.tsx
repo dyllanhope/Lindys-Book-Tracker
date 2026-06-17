@@ -78,7 +78,7 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             {results.map((book) => {
               const owned = libraryMap[book.externalId]
               const justAdded = imported === book.externalId
-              const previewHref = `/search/${book.source}/${encodeURIComponent(toRouteId(book.source, book.externalId))}`
+              const previewHref = `/search/${book.source}/${encodeURIComponent(toRouteId(book.source, book.externalId))}?q=${encodeURIComponent(q ?? '')}`
               return (
                 <div key={book.externalId} style={{ display: 'flex', gap: 14, alignItems: 'center', background: 'var(--card)', borderRadius: 18, padding: 11, border: '1px solid rgba(150,130,110,0.08)' }}>
                   <Link href={previewHref} style={{ flexShrink: 0, width: 56, height: 84, borderRadius: 10, overflow: 'hidden', boxShadow: '0 8px 14px -9px rgba(90,72,55,0.5)', display: 'block' }}>

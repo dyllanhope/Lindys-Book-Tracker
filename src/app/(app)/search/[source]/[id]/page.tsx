@@ -39,10 +39,11 @@ export default async function BookPreviewPage({
   searchParams,
 }: {
   params: Promise<PageParams>
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; q?: string }>
 }) {
   const { source, id } = await params
-  const { error } = await searchParams
+  const { error, q } = await searchParams
+  const backHref = q ? `/search?q=${encodeURIComponent(q)}` : '/search'
 
   const detail = await getExternalBookDetails(source as ExternalSource, decodeURIComponent(id))
 
@@ -51,14 +52,14 @@ export default async function BookPreviewPage({
   if (!detail) {
     return (
       <div className="pt-[62px] px-[22px] pb-4 md:pt-10 md:px-12 md:pb-[60px] fade-up">
-        <BackLink />
+        <BackLink href={backHref} />
         <div style={{ marginTop: 30, textAlign: 'center', color: 'var(--ink-light)' }}>
           <div style={{ fontSize: 40, marginBottom: 12 }}>📕</div>
           <p style={{ fontSize: 14 }}>
             Couldn&apos;t load this book&apos;s details right now
             {source === 'google' ? ' (Google Books may be rate-limited — try again later).' : '.'}
           </p>
-          <Link href="/search" style={{ marginTop: 8, display: 'inline-block', fontSize: 13, color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>← Back to search</Link>
+          <Link href={backHref} style={{ marginTop: 8, display: 'inline-block', fontSize: 13, color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>← Back to search</Link>
         </div>
       </div>
     )
@@ -74,7 +75,7 @@ export default async function BookPreviewPage({
 
   return (
     <div className="pt-[62px] px-[22px] pb-4 md:pt-10 md:px-12 md:pb-[60px] fade-up">
-      <BackLink />
+      <BackLink href={backHref} />
 
       <div className="md:flex md:gap-10" style={{ marginTop: 20, maxWidth: 880 }}>
         {/* Cover */}
@@ -137,9 +138,9 @@ export default async function BookPreviewPage({
   )
 }
 
-function BackLink() {
+function BackLink({ href }: { href: string }) {
   return (
-    <Link href="/search" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, color: 'var(--ink-light)', fontWeight: 600, textDecoration: 'none' }}>
+    <Link href={href} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, color: 'var(--ink-light)', fontWeight: 600, textDecoration: 'none' }}>
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 6-6 6 6 6"/></svg>
       Discover
     </Link>

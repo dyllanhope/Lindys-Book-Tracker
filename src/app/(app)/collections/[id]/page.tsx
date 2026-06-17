@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { coverGradient } from '@/lib/coverGradient'
 import { DeleteCollectionButton } from './DeleteCollectionButton'
+import { ShelfColorPicker } from './ShelfColorPicker'
 import type { Book, Collection } from '@/lib/types'
 
 export default async function CollectionDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -32,12 +33,16 @@ export default async function CollectionDetailPage({ params }: { params: Promise
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 6-6 6 6 6"/></svg>
             Shelves
           </Link>
-          <div style={{ fontFamily: 'var(--font-newsreader), serif', color: 'var(--ink)', fontWeight: 400, lineHeight: 1 }} className="text-[30px] md:text-[38px]">
-            {(collection as Collection).name}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ width: 14, height: 14, borderRadius: 99, background: (collection as Collection).color, flexShrink: 0 }} />
+            <div style={{ fontFamily: 'var(--font-newsreader), serif', color: 'var(--ink)', fontWeight: 400, lineHeight: 1 }} className="text-[30px] md:text-[38px]">
+              {(collection as Collection).name}
+            </div>
           </div>
           <div style={{ fontSize: 13, color: 'var(--ink-light)', marginTop: 7 }}>
             {books.length} {books.length === 1 ? 'book' : 'books'}
           </div>
+          <ShelfColorPicker id={id} current={(collection as Collection).color} />
         </div>
         <DeleteCollectionButton id={id} />
       </div>
