@@ -8,8 +8,9 @@ export async function searchBooks(query: string): Promise<ExternalBook[]> {
   try {
     const googleResults = await searchGoogleBooks(query)
     if (googleResults.length > 0) return googleResults
-  } catch {
-    // fall through to Open Library
+  } catch (err) {
+    // Google failed (e.g. quota/429) — log distinctly, then fall back to Open Library.
+    console.warn(`[search] Google Books failed, falling back to Open Library: ${err instanceof Error ? err.message : err}`)
   }
 
   try {
