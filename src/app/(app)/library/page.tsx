@@ -1,7 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { coverGradient } from '@/lib/coverGradient'
-import type { Book, ReadingStatus } from '@/lib/types'
+import { bookIdsForTagGroups } from '@/lib/tags'
+import { LibraryFilters } from './LibraryFilters'
+import type { Book, ReadingStatus, Tag } from '@/lib/types'
 
 const STATUS_CHIPS = [
   { value: '', label: 'All' },
@@ -17,19 +19,80 @@ const SORT_LABELS: Record<string, string> = {
   author: 'Author',
 }
 
-interface SearchParams { status?: string; sort?: string }
+interface SearchParams { status?: string; sort?: string; owned?: string; minRating?: string; tags?: string }
+
+const QUALITY_CATEGORIES = ['plot', 'characters', 'writing']
 
 export default async function LibraryPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams
   const status = params.status ?? ''
   const sort = params.sort ?? 'date_added'
+  const ownedOnly = params.owned === '1'
+  const minRating = params.minRating ? parseInt(params.minRating, 10) : 0
+  const tagIds = params.tags ? params.tags.split(',').filter(Boolean) : []
 
   const supabase = await createClient()
+
+  const { data: allTags } = await supabase.from('tags').select('*').order('name')
+  const tags = (allTags ?? []) as Tag[]
+
   let query = supabase.from('books').select('id, title, author, cover_url, reading_status, owned, date_added')
   if (status) query = query.eq('reading_status', status as ReadingStatus)
+  if (ownedOnly) query = query.eq('owned', true)
   const orderCol = sort === 'title' ? 'title' : sort === 'author' ? 'author' : 'date_added'
   query = query.order(orderCol, { ascending: sort !== 'date_added' })
-  const { data: books } = await query
+  const { data: rawBooks } = await query
+  let books = (rawBooks ?? []) as Book[]
+
+  // Tag filter: OR within a category, AND across categories.
+  if (tagIds.length > 0) {
+    const byCategory = new Map<string, string[]>()
+    for (const id of tagIds) {
+      const tag = tags.find((t) => t.id === id)
+      if (!tag) continue
+      const arr = byCategory.get(tag.category) ?? []
+      arr.push(id)
+      byCategory.set(tag.category, arr)
+    }
+    const allowed = await bookIdsForTagGroups(supabase, [...byCategory.values()])
+    if (allowed) books = books.filter((b) => allowed.has(b.id))
+  }
+
+  // Minimum average quality rating (mean of plot/characters/writing).
+  if (minRating > 0 && books.length > 0) {
+    const { data: ratingRows } = await supabase
+      .from('ratings')
+      .select('book_id, score')
+      .in('book_id', books.map((b) => b.id))
+      .in('category', QUALITY_CATEGORIES)
+    const scores = new Map<string, number[]>()
+    for (const r of (ratingRows ?? []) as { book_id: string; score: number }[]) {
+      const arr = scores.get(r.book_id) ?? []
+      arr.push(r.score)
+      scores.set(r.book_id, arr)
+    }
+    books = books.filter((b) => {
+      const arr = scores.get(b.id)
+      if (!arr || arr.length === 0) return false
+      return arr.reduce((a, c) => a + c, 0) / arr.length >= minRating
+    })
+  }
+
+  // Build a /library href preserving all active params, with overrides applied.
+  function hrefWith(overrides: Partial<SearchParams>) {
+    const merged: SearchParams = {
+      status: status || undefined,
+      sort: sort !== 'date_added' ? sort : undefined,
+      owned: ownedOnly ? '1' : undefined,
+      minRating: minRating ? String(minRating) : undefined,
+      tags: tagIds.length ? tagIds.join(',') : undefined,
+      ...overrides,
+    }
+    const p = new URLSearchParams()
+    for (const [k, v] of Object.entries(merged)) if (v) p.set(k, v)
+    const qs = p.toString()
+    return qs ? `/library?${qs}` : '/library'
+  }
 
   return (
     <div className="pt-[62px] px-[22px] pb-4 md:pt-10 md:px-12 md:pb-[60px] fade-up">
@@ -39,14 +102,14 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
           <div style={{ fontFamily: 'var(--font-newsreader), serif', color: 'var(--ink)', fontWeight: 400, lineHeight: 1 }} className="text-[30px] md:text-[38px]">
             Library
           </div>
-          <div style={{ fontSize: 13, color: 'var(--ink-light)', marginTop: 7 }}>{books?.length ?? 0} books</div>
+          <div style={{ fontSize: 13, color: 'var(--ink-light)', marginTop: 7 }}>{books.length} books</div>
         </div>
         {/* Desktop: filter chips + sort inline */}
         <div className="hidden md:flex items-center gap-3 flex-wrap">
           {STATUS_CHIPS.map((chip) => {
             const active = status === chip.value
             return (
-              <a key={chip.value} href={`/library?status=${chip.value}&sort=${sort}`} style={{ padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 600, textDecoration: 'none', background: active ? 'var(--ink)' : 'var(--card)', color: active ? 'var(--cream)' : '#7a6a5e', border: `1px solid ${active ? 'var(--ink)' : 'rgba(150,130,110,0.16)'}` }}>
+              <a key={chip.value} href={hrefWith({ status: chip.value || undefined })} style={{ padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 600, textDecoration: 'none', background: active ? 'var(--ink)' : 'var(--card)', color: active ? 'var(--cream)' : '#7a6a5e', border: `1px solid ${active ? 'var(--ink)' : 'rgba(150,130,110,0.16)'}` }}>
                 {chip.label}
               </a>
             )
@@ -55,7 +118,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
           {Object.entries(SORT_LABELS).map(([key, label]) => {
             const active = sort === key
             return (
-              <a key={key} href={`/library?status=${status}&sort=${key}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, textDecoration: 'none', background: 'var(--card)', border: '1px solid rgba(150,130,110,0.16)', color: active ? 'var(--accent)' : '#7a6a5e' }}>
+              <a key={key} href={hrefWith({ sort: key !== 'date_added' ? key : undefined })} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, textDecoration: 'none', background: 'var(--card)', border: '1px solid rgba(150,130,110,0.16)', color: active ? 'var(--accent)' : '#7a6a5e' }}>
                 {label}
               </a>
             )
@@ -71,7 +134,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
         {STATUS_CHIPS.map((chip) => {
           const active = status === chip.value
           return (
-            <a key={chip.value} href={`/library?status=${chip.value}&sort=${sort}`} style={{ flexShrink: 0, padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 600, textDecoration: 'none', background: active ? 'var(--ink)' : 'var(--card)', color: active ? 'var(--cream)' : '#7a6a5e', border: `1px solid ${active ? 'var(--ink)' : 'rgba(150,130,110,0.16)'}` }}>
+            <a key={chip.value} href={hrefWith({ status: chip.value || undefined })} style={{ flexShrink: 0, padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 600, textDecoration: 'none', background: active ? 'var(--ink)' : 'var(--card)', color: active ? 'var(--cream)' : '#7a6a5e', border: `1px solid ${active ? 'var(--ink)' : 'rgba(150,130,110,0.16)'}` }}>
               {chip.label}
             </a>
           )
@@ -81,7 +144,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
         {Object.entries(SORT_LABELS).map(([key, label]) => {
           const active = sort === key
           return (
-            <a key={key} href={`/library?status=${status}&sort=${key}`} style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, textDecoration: 'none', background: active ? 'var(--accent-light)' : 'transparent', color: active ? 'var(--accent)' : '#B3A595' }}>
+            <a key={key} href={hrefWith({ sort: key !== 'date_added' ? key : undefined })} style={{ padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, textDecoration: 'none', background: active ? 'var(--accent-light)' : 'transparent', color: active ? 'var(--accent)' : '#B3A595' }}>
               {label}
             </a>
           )
@@ -89,10 +152,18 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
         <Link href="/books/new" style={{ marginLeft: 'auto', padding: '6px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600, color: 'var(--accent)', textDecoration: 'none' }}>+ Add</Link>
       </div>
 
+      {/* Advanced filters: tags, rating, owned */}
+      <LibraryFilters
+        tags={tags}
+        activeTagIds={tagIds}
+        minRating={minRating}
+        ownedOnly={ownedOnly}
+      />
+
       {/* Book grid — 3 cols mobile, 5 cols desktop */}
-      {books && books.length > 0 ? (
+      {books.length > 0 ? (
         <div className="grid grid-cols-3 md:grid-cols-5 mt-[22px]" style={{ gap: '18px 14px' }}>
-          {(books as Book[]).map((book) => {
+          {books.map((book) => {
             const badge = book.reading_status === 'currently_reading'
               ? { text: 'Reading', bg: 'rgba(219,138,106,0.95)' }
               : book.reading_status === 'finished'

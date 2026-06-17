@@ -8,7 +8,25 @@ interface GoogleVolume {
     industryIdentifiers?: { type: string; identifier: string }[]
     description?: string
     imageLinks?: { thumbnail?: string }
+    categories?: string[]
   }
+}
+
+// Google returns slash-delimited paths like "Fiction / Fantasy / Epic".
+// Flatten to individual genre names, drop overly-generic buckets, and dedupe.
+const GENRE_STOPLIST = new Set(['fiction', 'nonfiction', 'non-fiction', 'general'])
+
+function parseCategories(categories: string[] | undefined): string[] {
+  if (!categories) return []
+  const out = new Map<string, string>() // lowercase -> display form
+  for (const raw of categories) {
+    for (const part of raw.split('/')) {
+      const name = part.trim()
+      const key = name.toLowerCase()
+      if (name && !GENRE_STOPLIST.has(key) && !out.has(key)) out.set(key, name)
+    }
+  }
+  return [...out.values()]
 }
 
 export async function searchGoogleBooks(query: string): Promise<ExternalBook[]> {
@@ -33,6 +51,7 @@ export async function searchGoogleBooks(query: string): Promise<ExternalBook[]> 
       coverUrl: cover,
       source: 'google' as const,
       externalId: item.id,
+      categories: parseCategories(info.categories),
     }
   })
 }

@@ -35,6 +35,7 @@ export async function searchOpenLibrary(query: string): Promise<ExternalBook[]> 
       coverUrl: cover,
       source: 'openlibrary' as const,
       externalId: doc.key,
+      categories: [], // OpenLibrary subjects are too noisy to auto-tag; add tags manually
     }
   })
 }
