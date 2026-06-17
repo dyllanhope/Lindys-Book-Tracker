@@ -39,53 +39,122 @@ async function createBook(formData: FormData) {
   redirect(`/books/${data.id}`)
 }
 
-const inputClass = 'rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full'
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'var(--card)',
+  border: '1px solid rgba(150,130,110,0.22)',
+  borderRadius: 12,
+  padding: '11px 14px',
+  fontSize: 14,
+  color: 'var(--ink)',
+  outline: 'none',
+  fontFamily: 'var(--font-mulish), sans-serif',
+}
 
 export default async function NewBookPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams
 
   return (
-    <div className="max-w-lg">
-      <h1 className="text-2xl font-bold text-stone-800 mb-6">Add Book Manually</h1>
-      <form action={createBook} encType="multipart/form-data" className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="title" className="text-sm font-medium text-stone-700">Title *</label>
-          <input id="title" name="title" required placeholder="Book title" className={inputClass} />
+    <div style={{ padding: '62px 22px 16px', maxWidth: 480 }} className="fade-up">
+      <a
+        href="/library"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 4,
+          fontSize: 12.5,
+          color: 'var(--ink-light)',
+          fontWeight: 600,
+          textDecoration: 'none',
+          marginBottom: 16,
+        }}
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+        Library
+      </a>
+
+      <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 28, color: 'var(--ink)', fontWeight: 500, marginBottom: 24 }}>
+        Add a book
+      </div>
+
+      <form action={createBook} encType="multipart/form-data" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div>
+          <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>
+            Title *
+          </label>
+          <input name="title" required placeholder="Book title" style={inputStyle} />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="author" className="text-sm font-medium text-stone-700">Author</label>
-          <input id="author" name="author" placeholder="Author name" className={inputClass} />
+        <div>
+          <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>
+            Author
+          </label>
+          <input name="author" placeholder="Author name" style={inputStyle} />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="series" className="text-sm font-medium text-stone-700">Series</label>
-          <input id="series" name="series" placeholder="Series name (optional)" className={inputClass} />
+        <div>
+          <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>
+            Series
+          </label>
+          <input name="series" placeholder="Series name (optional)" style={inputStyle} />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="description" className="text-sm font-medium text-stone-700">Description</label>
+        <div>
+          <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>
+            Description
+          </label>
           <textarea
-            id="description"
             name="description"
             rows={4}
             placeholder="Book description (optional)"
-            className={`${inputClass} resize-none`}
+            style={{ ...inputStyle, resize: 'none' }}
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="cover" className="text-sm font-medium text-stone-700">Cover Image</label>
+        <div>
+          <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>
+            Cover Image
+          </label>
           <input
-            id="cover"
             name="cover"
             type="file"
             accept="image/*"
-            className="text-sm text-stone-600 file:mr-3 file:rounded-lg file:border-0 file:bg-indigo-50 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-indigo-700 hover:file:bg-indigo-100"
+            style={{ fontSize: 13, color: 'var(--ink-light)' }}
           />
         </div>
-        {error && <p className="text-sm text-red-600">{decodeURIComponent(error)}</p>}
-        <div className="flex gap-3 mt-2">
-          <button type="submit" className="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700 transition-colors">
+
+        {error && (
+          <p style={{ fontSize: 13, color: '#c0392b' }}>{decodeURIComponent(error)}</p>
+        )}
+
+        <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+          <button
+            type="submit"
+            style={{
+              background: 'var(--ink)',
+              color: 'var(--cream)',
+              border: 'none',
+              borderRadius: 12,
+              padding: '12px 24px',
+              fontSize: 14,
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'var(--font-mulish), sans-serif',
+            }}
+          >
             Add Book
           </button>
-          <a href="/library" className="rounded-lg border border-stone-300 text-stone-700 px-4 py-2 text-sm font-medium hover:bg-stone-50 transition-colors">
+          <a
+            href="/library"
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(150,130,110,0.22)',
+              borderRadius: 12,
+              padding: '12px 24px',
+              fontSize: 14,
+              fontWeight: 600,
+              color: 'var(--ink-light)',
+              textDecoration: 'none',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
             Cancel
           </a>
         </div>

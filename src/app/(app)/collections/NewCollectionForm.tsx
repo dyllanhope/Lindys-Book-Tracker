@@ -13,19 +13,46 @@ async function createCollection(formData: FormData) {
   redirect('/collections')
 }
 
-export function NewCollectionForm({ error }: { error?: string }) {
+export function NewCollectionForm({ error, compact }: { error?: string; compact?: boolean }) {
   return (
-    <form action={createCollection} className="flex gap-2 max-w-sm">
-      <input
-        name="name"
-        placeholder="Collection name…"
-        required
-        className="flex-1 rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-      />
-      <button type="submit" className="rounded-lg bg-indigo-600 text-white px-4 py-2 text-sm font-medium hover:bg-indigo-700 transition-colors whitespace-nowrap">
-        Create
-      </button>
-      {error && <p className="text-sm text-red-600 mt-1">{decodeURIComponent(error)}</p>}
-    </form>
+    <div>
+      <form action={createCollection} style={{ display: 'flex', gap: 8, maxWidth: compact ? 280 : 340 }}>
+        <input
+          name="name"
+          placeholder="New shelf name…"
+          required
+          style={{
+            flex: 1,
+            background: 'var(--card)',
+            border: '1px solid rgba(150,130,110,0.22)',
+            borderRadius: 12,
+            padding: '10px 14px',
+            fontSize: 14,
+            color: 'var(--ink)',
+            outline: 'none',
+            fontFamily: 'var(--font-mulish), sans-serif',
+          }}
+        />
+        <button
+          type="submit"
+          style={{
+            background: 'var(--ink)',
+            color: 'var(--cream)',
+            border: 'none',
+            borderRadius: 12,
+            padding: '10px 16px',
+            fontSize: 13,
+            fontWeight: 600,
+            cursor: 'pointer',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Create
+        </button>
+      </form>
+      {error && (
+        <p style={{ marginTop: 8, fontSize: 13, color: '#c0392b' }}>{decodeURIComponent(error)}</p>
+      )}
+    </div>
   )
 }

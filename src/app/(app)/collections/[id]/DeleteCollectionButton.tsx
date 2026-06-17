@@ -18,9 +18,19 @@ export function DeleteCollectionButton({ id }: { id: string }) {
     <button
       onClick={handleDelete}
       disabled={loading}
-      className="rounded-lg bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 text-sm font-medium hover:bg-red-100 transition-colors disabled:opacity-60"
+      style={{
+        background: 'transparent',
+        border: '1px solid rgba(150,130,110,0.22)',
+        borderRadius: 12,
+        padding: '8px 14px',
+        fontSize: 12.5,
+        fontWeight: 600,
+        color: 'var(--ink-light)',
+        cursor: 'pointer',
+        opacity: loading ? 0.5 : 1,
+      }}
     >
-      {loading ? 'Deleting…' : 'Delete'}
+      {loading ? 'Deleting…' : 'Delete shelf'}
     </button>
   )
 }

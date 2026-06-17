@@ -1,17 +1,38 @@
 import Link from 'next/link'
 import { resetPasswordRequest } from '../actions'
 
-const inputClass = 'rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent w-full'
+const inputStyle: React.CSSProperties = {
+  width: '100%',
+  background: 'var(--card)',
+  border: '1px solid rgba(150,130,110,0.22)',
+  borderRadius: 12,
+  padding: '11px 14px',
+  fontSize: 14,
+  color: 'var(--ink)',
+  outline: 'none',
+  fontFamily: 'var(--font-mulish), sans-serif',
+}
 
 export default async function ResetPasswordPage({ searchParams }: { searchParams: Promise<{ error?: string; success?: string }> }) {
   const { error, success } = await searchParams
 
   if (success) {
     return (
-      <div className="bg-white rounded-xl border border-stone-200 p-8 shadow-sm text-center">
-        <p className="text-green-700 font-medium mb-2">Email sent!</p>
-        <p className="text-stone-500 text-sm">Check your inbox for a password reset link.</p>
-        <Link href="/login" className="mt-4 inline-block text-sm text-indigo-600 hover:underline">
+      <div
+        style={{
+          background: 'var(--card)',
+          borderRadius: 24,
+          padding: '28px 24px',
+          boxShadow: '0 20px 40px -20px rgba(90,72,55,0.3)',
+          border: '1px solid rgba(150,130,110,0.08)',
+          textAlign: 'center',
+        }}
+      >
+        <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 22, color: 'var(--ink)', fontWeight: 500, marginBottom: 10 }}>
+          Email sent!
+        </div>
+        <p style={{ fontSize: 14, color: 'var(--ink-light)' }}>Check your inbox for a password reset link.</p>
+        <Link href="/login" style={{ display: 'inline-block', marginTop: 20, fontSize: 13, color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>
           Back to sign in
         </Link>
       </div>
@@ -19,21 +40,49 @@ export default async function ResetPasswordPage({ searchParams }: { searchParams
   }
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-8 shadow-sm">
-      <h2 className="text-xl font-semibold text-stone-800 mb-2">Reset password</h2>
-      <p className="text-sm text-stone-500 mb-6">We&apos;ll send you a link to reset your password.</p>
-      <form action={resetPasswordRequest} className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <label htmlFor="email" className="text-sm font-medium text-stone-700">Email</label>
-          <input id="email" name="email" type="email" required className={inputClass} />
+    <div
+      style={{
+        background: 'var(--card)',
+        borderRadius: 24,
+        padding: '28px 24px',
+        boxShadow: '0 20px 40px -20px rgba(90,72,55,0.3)',
+        border: '1px solid rgba(150,130,110,0.08)',
+      }}
+    >
+      <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 22, color: 'var(--ink)', fontWeight: 500, marginBottom: 6 }}>
+        Reset password
+      </div>
+      <p style={{ fontSize: 14, color: 'var(--ink-light)', marginBottom: 20 }}>
+        We&apos;ll send you a link to reset your password.
+      </p>
+      <form action={resetPasswordRequest} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div>
+          <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>Email</label>
+          <input name="email" type="email" required style={inputStyle} />
         </div>
-        {error && <p className="text-sm text-red-600">{decodeURIComponent(error)}</p>}
-        <button type="submit" className="w-full mt-1 rounded-lg bg-indigo-600 text-white py-2 text-sm font-medium hover:bg-indigo-700 transition-colors">
+        {error && <p style={{ fontSize: 13, color: '#c0392b' }}>{decodeURIComponent(error)}</p>}
+        <button
+          type="submit"
+          style={{
+            width: '100%',
+            background: 'var(--ink)',
+            color: 'var(--cream)',
+            border: 'none',
+            borderRadius: 12,
+            padding: '12px 0',
+            fontSize: 14,
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontFamily: 'var(--font-mulish), sans-serif',
+          }}
+        >
           Send reset link
         </button>
       </form>
-      <p className="mt-5 text-sm text-center">
-        <Link href="/login" className="text-indigo-600 hover:underline">Back to sign in</Link>
+      <p style={{ marginTop: 20, textAlign: 'center' }}>
+        <Link href="/login" style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>
+          Back to sign in
+        </Link>
       </p>
     </div>
   )

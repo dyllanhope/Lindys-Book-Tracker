@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Badge } from '@/components/ui/Badge'
+import { coverGradient } from '@/lib/coverGradient'
 import { DeleteCollectionButton } from './DeleteCollectionButton'
 import type { Book, Collection } from '@/lib/types'
 
@@ -22,37 +22,74 @@ export default async function CollectionDetailPage({ params }: { params: Promise
   const books = (collectionBooks ?? []).map((cb) => cb.books).flat().filter(Boolean) as unknown as Book[]
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
+    <div className="pt-[62px] px-[22px] pb-4 md:pt-10 md:px-12 md:pb-[60px] fade-up">
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
         <div>
-          <Link href="/collections" className="text-sm text-indigo-600 hover:underline">← Collections</Link>
-          <h1 className="text-2xl font-bold text-stone-800 mt-1">{(collection as Collection).name}</h1>
-          <p className="text-stone-400 text-sm">{books.length} {books.length === 1 ? 'book' : 'books'}</p>
+          <Link
+            href="/collections"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 12.5, color: 'var(--ink-light)', fontWeight: 600, textDecoration: 'none', marginBottom: 6 }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 6-6 6 6 6"/></svg>
+            Shelves
+          </Link>
+          <div style={{ fontFamily: 'var(--font-newsreader), serif', color: 'var(--ink)', fontWeight: 400, lineHeight: 1 }} className="text-[30px] md:text-[38px]">
+            {(collection as Collection).name}
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--ink-light)', marginTop: 7 }}>
+            {books.length} {books.length === 1 ? 'book' : 'books'}
+          </div>
         </div>
         <DeleteCollectionButton id={id} />
       </div>
 
       {books.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 md:grid-cols-5 mt-[22px]" style={{ gap: '18px 14px' }}>
           {books.map((book) => (
-            <Link
-              key={book.id}
-              href={`/books/${book.id}`}
-              className="bg-white rounded-xl border border-stone-200 p-3 shadow-sm hover:border-indigo-300 transition-colors flex flex-col gap-2"
-            >
-              {book.cover_url ? (
-                <img src={book.cover_url} alt={book.title} className="w-full h-40 object-cover rounded-lg" />
-              ) : (
-                <div className="w-full h-40 bg-stone-100 rounded-lg flex items-center justify-center text-4xl">📖</div>
-              )}
-              <p className="text-sm font-medium text-stone-800 line-clamp-2">{book.title}</p>
-              {book.author && <p className="text-xs text-stone-400 line-clamp-1">{book.author}</p>}
-              <Badge value={book.reading_status} />
+            <Link key={book.id} href={`/books/${book.id}`} style={{ textDecoration: 'none', cursor: 'pointer' }}>
+              <div
+                style={{
+                  position: 'relative',
+                  width: '100%',
+                  aspectRatio: '2 / 3',
+                  borderRadius: 11,
+                  overflow: 'hidden',
+                  boxShadow: '0 12px 20px -13px rgba(90,72,55,0.5)',
+                }}
+              >
+                {book.cover_url ? (
+                  <img src={book.cover_url} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <div
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      background: coverGradient(book.id),
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'flex-end',
+                      padding: '11px 10px',
+                    }}
+                  >
+                    <div style={{ width: 18, height: 1.5, background: 'rgba(74,61,53,0.35)', marginBottom: 6 }} />
+                    <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 13, lineHeight: 1.08, color: '#3a2e27', fontWeight: 600 }}>
+                      {book.title}
+                    </div>
+                    {book.author && (
+                      <div style={{ fontSize: 7.5, color: 'rgba(74,61,53,0.6)', marginTop: 4, fontStyle: 'italic' }}>{book.author}</div>
+                    )}
+                  </div>
+                )}
+              </div>
+              <div className="hidden md:block" style={{ fontSize: 11, color: 'var(--ink-light)', marginTop: 8, fontStyle: 'italic', fontFamily: 'var(--font-newsreader), serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {book.author}
+              </div>
             </Link>
           ))}
         </div>
       ) : (
-        <p className="text-stone-400 text-sm">No books in this collection yet. Open a book and toggle it in.</p>
+        <p style={{ marginTop: 24, fontSize: 13, color: 'var(--ink-light)' }}>
+          No books in this shelf yet. Open a book and add it here.
+        </p>
       )}
     </div>
   )

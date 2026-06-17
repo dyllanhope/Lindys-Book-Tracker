@@ -1,8 +1,21 @@
 import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
+import { Newsreader, Mulish } from 'next/font/google'
 import './globals.css'
 
-const geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  style: ['normal', 'italic'],
+  variable: '--font-newsreader',
+  display: 'swap',
+})
+
+const mulish = Mulish({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-mulish',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: "Lindy's Book Tracker",
@@ -11,8 +24,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${geist.variable} h-full`}>
-      <body className="min-h-full bg-stone-50 text-stone-900 font-sans antialiased">
+    <html lang="en" className={`${newsreader.variable} ${mulish.variable} h-full`}>
+      <body className="min-h-full antialiased" style={{ background: 'var(--cream)', color: 'var(--ink)', fontFamily: 'var(--font-mulish), sans-serif' }}>
         {children}
       </body>
     </html>
