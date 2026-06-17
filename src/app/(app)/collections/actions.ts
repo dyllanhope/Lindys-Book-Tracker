@@ -6,8 +6,10 @@ import { revalidatePath } from 'next/cache'
 import { SHELF_COLORS, DEFAULT_SHELF_COLOR } from '@/lib/shelfColors'
 
 function safeColor(value: FormDataEntryValue | null): string {
-  const c = (value as string) ?? ''
-  return SHELF_COLORS.includes(c) ? c : DEFAULT_SHELF_COLOR
+  const c = ((value as string) ?? '').trim()
+  if (SHELF_COLORS.includes(c)) return c
+  if (/^#[0-9a-fA-F]{6}$/.test(c)) return c // custom colour-wheel value
+  return DEFAULT_SHELF_COLOR
 }
 
 export async function createCollection(formData: FormData) {

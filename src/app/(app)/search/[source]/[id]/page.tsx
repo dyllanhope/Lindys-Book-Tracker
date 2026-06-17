@@ -39,11 +39,14 @@ export default async function BookPreviewPage({
   searchParams,
 }: {
   params: Promise<PageParams>
-  searchParams: Promise<{ error?: string; q?: string }>
+  searchParams: Promise<{ error?: string; q?: string; author?: string }>
 }) {
   const { source, id } = await params
-  const { error, q } = await searchParams
-  const backHref = q ? `/search?q=${encodeURIComponent(q)}` : '/search'
+  const { error, q, author } = await searchParams
+  const backParams = new URLSearchParams()
+  if (q) backParams.set('q', q)
+  if (author) backParams.set('author', author)
+  const backHref = backParams.toString() ? `/search?${backParams.toString()}` : '/search'
 
   const detail = await getExternalBookDetails(source as ExternalSource, decodeURIComponent(id))
 

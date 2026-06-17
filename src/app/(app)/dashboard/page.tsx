@@ -214,8 +214,11 @@ export default async function DashboardPage() {
           {/* Desktop: 4-col grid */}
           <div className="hidden md:grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 18 }}>
             {collections.map((col) => (
-              <Link key={col.id} href={`/collections/${col.id}`} style={{ background: 'var(--card)', borderRadius: 22, padding: 18, textDecoration: 'none', border: '1px solid rgba(150,130,110,0.08)', boxShadow: '0 12px 24px -20px rgba(120,95,70,0.5)', display: 'block' }}>
-                <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500, lineHeight: 1.2 }}>{col.name}</div>
+              <Link key={col.id} href={`/collections/${col.id}`} style={{ background: 'var(--card)', borderRadius: 22, padding: 18, textDecoration: 'none', border: '1px solid rgba(150,130,110,0.08)', borderLeft: `4px solid ${col.color}`, boxShadow: '0 12px 24px -20px rgba(120,95,70,0.5)', display: 'block' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 99, background: col.color, flexShrink: 0 }} />
+                  <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500, lineHeight: 1.2 }}>{col.name}</div>
+                </div>
               </Link>
             ))}
           </div>
