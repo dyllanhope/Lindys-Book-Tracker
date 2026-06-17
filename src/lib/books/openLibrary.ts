@@ -1,4 +1,5 @@
 import type { ExternalBook } from '@/lib/types'
+import { fetchWithRetry } from './http'
 
 interface OLDoc {
   key: string
@@ -71,7 +72,7 @@ function toWorkOlid(olid: string): string {
 /** Fetch an OpenLibrary Work: blurb, curated genres, cover, and (best-effort) author. */
 export async function getOpenLibraryWork(olid: string): Promise<OpenLibraryWorkDetail | null> {
   const key = toWorkOlid(olid)
-  const res = await fetch(`https://openlibrary.org/works/${key}.json`, {
+  const res = await fetchWithRetry(`https://openlibrary.org/works/${key}.json`, {
     next: { revalidate: 3600 },
     headers: { 'User-Agent': USER_AGENT },
   })
@@ -88,7 +89,7 @@ export async function getOpenLibraryWork(olid: string): Promise<OpenLibraryWorkD
   const authorKey = w.authors?.[0]?.author?.key
   if (authorKey) {
     try {
-      const ar = await fetch(`https://openlibrary.org${authorKey}.json`, {
+      const ar = await fetchWithRetry(`https://openlibrary.org${authorKey}.json`, {
         next: { revalidate: 86400 },
         headers: { 'User-Agent': USER_AGENT },
       })
@@ -101,7 +102,7 @@ export async function getOpenLibraryWork(olid: string): Promise<OpenLibraryWorkD
 
 export async function searchOpenLibrary(query: string): Promise<ExternalBook[]> {
   const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=20`
-  const res = await fetch(url, { next: { revalidate: 60 }, headers: { 'User-Agent': USER_AGENT } })
+  const res = await fetchWithRetry(url, { next: { revalidate: 60 }, headers: { 'User-Agent': USER_AGENT } })
   if (!res.ok) return []
 
   const data = await res.json()
