@@ -19,7 +19,10 @@ const SORT_LABELS: Record<string, string> = {
   author: 'Author',
 }
 
-interface SearchParams { status?: string; sort?: string; owned?: string; minRating?: string; tags?: string }
+interface SearchParams {
+  status?: string; sort?: string; owned?: string; tags?: string
+  minRating?: string; minPlot?: string; minCharacters?: string; minWriting?: string; minSpice?: string
+}
 
 const QUALITY_CATEGORIES = ['plot', 'characters', 'writing']
 
@@ -28,8 +31,13 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
   const status = params.status ?? ''
   const sort = params.sort ?? 'date_added'
   const ownedOnly = params.owned === '1'
-  const minRating = params.minRating ? parseInt(params.minRating, 10) : 0
   const tagIds = params.tags ? params.tags.split(',').filter(Boolean) : []
+  const num = (v?: string) => (v ? parseInt(v, 10) || 0 : 0)
+  const minRating = num(params.minRating)
+  const minPlot = num(params.minPlot)
+  const minCharacters = num(params.minCharacters)
+  const minWriting = num(params.minWriting)
+  const minSpice = num(params.minSpice)
 
   const supabase = await createClient()
 
@@ -58,23 +66,29 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
     if (allowed) books = books.filter((b) => allowed.has(b.id))
   }
 
-  // Minimum average quality rating (mean of plot/characters/writing).
-  if (minRating > 0 && books.length > 0) {
+  // Rating filters: overall (mean of plot/characters/writing) and per-dimension.
+  // Each active filter is AND-ed; a book must have a rating in a dimension to pass it.
+  if ((minRating || minPlot || minCharacters || minWriting || minSpice) && books.length > 0) {
     const { data: ratingRows } = await supabase
       .from('ratings')
-      .select('book_id, score')
+      .select('book_id, category, score')
       .in('book_id', books.map((b) => b.id))
-      .in('category', QUALITY_CATEGORIES)
-    const scores = new Map<string, number[]>()
-    for (const r of (ratingRows ?? []) as { book_id: string; score: number }[]) {
-      const arr = scores.get(r.book_id) ?? []
-      arr.push(r.score)
-      scores.set(r.book_id, arr)
+    const byBook = new Map<string, Record<string, number>>()
+    for (const r of (ratingRows ?? []) as { book_id: string; category: string; score: number }[]) {
+      const m = byBook.get(r.book_id) ?? {}
+      m[r.category] = r.score
+      byBook.set(r.book_id, m)
     }
+    const passesCat = (m: Record<string, number>, cat: string, min: number) =>
+      min === 0 || (m[cat] != null && m[cat] >= min)
     books = books.filter((b) => {
-      const arr = scores.get(b.id)
-      if (!arr || arr.length === 0) return false
-      return arr.reduce((a, c) => a + c, 0) / arr.length >= minRating
+      const m = byBook.get(b.id) ?? {}
+      if (minRating > 0) {
+        const q = QUALITY_CATEGORIES.map((c) => m[c]).filter((s): s is number => s != null)
+        if (q.length === 0 || q.reduce((a, c) => a + c, 0) / q.length < minRating) return false
+      }
+      return passesCat(m, 'plot', minPlot) && passesCat(m, 'characters', minCharacters) &&
+        passesCat(m, 'writing', minWriting) && passesCat(m, 'spice', minSpice)
     })
   }
 
@@ -85,6 +99,10 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
       sort: sort !== 'date_added' ? sort : undefined,
       owned: ownedOnly ? '1' : undefined,
       minRating: minRating ? String(minRating) : undefined,
+      minPlot: minPlot ? String(minPlot) : undefined,
+      minCharacters: minCharacters ? String(minCharacters) : undefined,
+      minWriting: minWriting ? String(minWriting) : undefined,
+      minSpice: minSpice ? String(minSpice) : undefined,
       tags: tagIds.length ? tagIds.join(',') : undefined,
       ...overrides,
     }
@@ -156,7 +174,7 @@ export default async function LibraryPage({ searchParams }: { searchParams: Prom
       <LibraryFilters
         tags={tags}
         activeTagIds={tagIds}
-        minRating={minRating}
+        ratings={{ minRating, minPlot, minCharacters, minWriting, minSpice }}
         ownedOnly={ownedOnly}
       />
 

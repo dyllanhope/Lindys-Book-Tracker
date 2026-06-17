@@ -177,6 +177,7 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
             <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 25, color: 'var(--ink)', fontWeight: 500, marginTop: 22, lineHeight: 1.15, maxWidth: 300 }}>{book.title}</div>
             {book.author && <div style={{ fontSize: 14, color: 'var(--ink-light)', marginTop: 4, fontStyle: 'italic', fontFamily: 'var(--font-newsreader), serif' }}>by {book.author}</div>}
             <OwnedButton owned={owned} onToggle={() => setOwned(!owned)} />
+            {book.description && <AboutBlock description={book.description} />}
           </div>
         </div>
 
@@ -196,6 +197,7 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
           <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 22, color: 'var(--ink)', fontWeight: 500, marginTop: 22, lineHeight: 1.2, textAlign: 'center' }}>{book.title}</div>
           {book.author && <div style={{ fontSize: 14, color: 'var(--ink-light)', marginTop: 4, fontStyle: 'italic', fontFamily: 'var(--font-newsreader), serif', textAlign: 'center' }}>by {book.author}</div>}
           <OwnedButton owned={owned} onToggle={() => setOwned(!owned)} />
+          {book.description && <AboutBlock description={book.description} />}
           <div style={{ marginTop: 'auto', paddingTop: 32 }}>
             <button
               onClick={deleteBook}
@@ -243,14 +245,6 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
           >
             {saving ? 'Saving…' : 'Save'}
           </button>
-
-          {/* Description */}
-          {book.description && (
-            <div style={{ marginTop: 22, background: 'var(--card)', borderRadius: 22, padding: '18px 20px', border: '1px solid rgba(150,130,110,0.08)' }}>
-              <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 18, color: 'var(--ink)', fontWeight: 500, marginBottom: 10 }}>About</div>
-              <p style={{ fontSize: 14, color: '#5a4a42', lineHeight: 1.65 }}>{book.description}</p>
-            </div>
-          )}
 
           {/* Ratings */}
           <div style={{ marginTop: 22, background: 'var(--card)', borderRadius: 22, padding: '22px 20px', border: '1px solid rgba(150,130,110,0.08)' }}>
@@ -419,6 +413,15 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
 
         </div>
       </div>
+    </div>
+  )
+}
+
+function AboutBlock({ description }: { description: string }) {
+  return (
+    <div style={{ marginTop: 22, width: '100%', textAlign: 'left', background: 'rgba(255,253,248,0.6)', borderRadius: 16, padding: '16px 18px', border: '1px solid rgba(150,130,110,0.14)' }}>
+      <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 16, color: 'var(--ink)', fontWeight: 500, marginBottom: 8 }}>About</div>
+      <p style={{ fontSize: 13.5, color: '#5a4a42', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>{description}</p>
     </div>
   )
 }

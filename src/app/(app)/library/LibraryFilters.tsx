@@ -5,22 +5,39 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { TAG_CATEGORIES, TAG_CATEGORY_LABEL, TAG_CATEGORY_STYLE } from '@/lib/tags'
 import type { Tag } from '@/lib/types'
 
+interface Ratings {
+  minRating: number
+  minPlot: number
+  minCharacters: number
+  minWriting: number
+  minSpice: number
+}
+
 interface Props {
   tags: Tag[]
   activeTagIds: string[]
-  minRating: number
+  ratings: Ratings
   ownedOnly: boolean
 }
 
 const RATING_OPTIONS = [0, 1, 2, 3, 4, 5]
 
-export function LibraryFilters({ tags, activeTagIds, minRating, ownedOnly }: Props) {
+const RATING_DIMS: { param: keyof Ratings; label: string; symbol: string }[] = [
+  { param: 'minRating', label: 'Overall', symbol: '★' },
+  { param: 'minPlot', label: 'Plot', symbol: '★' },
+  { param: 'minCharacters', label: 'Characters', symbol: '★' },
+  { param: 'minWriting', label: 'Writing', symbol: '★' },
+  { param: 'minSpice', label: 'Spice', symbol: '🌶️' },
+]
+
+export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
 
   const activeTagSet = new Set(activeTagIds)
-  const activeCount = activeTagIds.length + (minRating > 0 ? 1 : 0) + (ownedOnly ? 1 : 0)
+  const activeRatingCount = RATING_DIMS.filter((d) => ratings[d.param] > 0).length
+  const activeCount = activeTagIds.length + activeRatingCount + (ownedOnly ? 1 : 0)
 
   function push(mutate: (p: URLSearchParams) => void) {
     const p = new URLSearchParams(searchParams.toString())
@@ -39,10 +56,10 @@ export function LibraryFilters({ tags, activeTagIds, minRating, ownedOnly }: Pro
     })
   }
 
-  function setMinRating(n: number) {
+  function setRating(param: keyof Ratings, n: number) {
     push((p) => {
-      if (n > 0) p.set('minRating', String(n))
-      else p.delete('minRating')
+      if (n > 0) p.set(param, String(n))
+      else p.delete(param)
     })
   }
 
@@ -56,12 +73,11 @@ export function LibraryFilters({ tags, activeTagIds, minRating, ownedOnly }: Pro
   function clearAll() {
     push((p) => {
       p.delete('tags')
-      p.delete('minRating')
       p.delete('owned')
+      for (const d of RATING_DIMS) p.delete(d.param)
     })
   }
 
-  // Tags grouped by category (only categories that have tags).
   const grouped = TAG_CATEGORIES
     .map((cat) => ({ ...cat, tags: tags.filter((t) => t.category === cat.value) }))
     .filter((g) => g.tags.length > 0)
@@ -82,10 +98,10 @@ export function LibraryFilters({ tags, activeTagIds, minRating, ownedOnly }: Pro
           Filters{activeCount > 0 ? ` · ${activeCount}` : ''}
         </button>
 
-        {/* Active filter chips */}
-        {minRating > 0 && (
-          <FilterPill label={`${minRating}★ & up`} onRemove={() => setMinRating(0)} />
-        )}
+        {/* Active rating chips */}
+        {RATING_DIMS.filter((d) => ratings[d.param] > 0).map((d) => (
+          <FilterPill key={d.param} label={`${d.label} ${ratings[d.param]}${d.symbol}+`} onRemove={() => setRating(d.param, 0)} />
+        ))}
         {ownedOnly && <FilterPill label="On my shelf" onRemove={toggleOwned} />}
         {activeTags.map((t) => (
           <FilterPill key={t.id} label={t.name} color={TAG_CATEGORY_STYLE[t.category]} onRemove={() => toggleTag(t.id)} />
@@ -100,17 +116,24 @@ export function LibraryFilters({ tags, activeTagIds, minRating, ownedOnly }: Pro
       {/* Expandable panel */}
       {open && (
         <div style={{ marginTop: 12, background: 'var(--card)', borderRadius: 18, padding: '18px 20px', border: '1px solid rgba(150,130,110,0.12)' }}>
-          {/* Minimum rating */}
-          <FilterSection title="Minimum rating">
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-              {RATING_OPTIONS.map((n) => {
-                const active = minRating === n
-                return (
-                  <button key={n} onClick={() => setMinRating(n)} style={chipStyle(active)}>
-                    {n === 0 ? 'Any' : `${n}★+`}
-                  </button>
-                )
-              })}
+          {/* Ratings — overall + per dimension */}
+          <FilterSection title="Ratings — minimum (& up)">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
+              {RATING_DIMS.map((d) => (
+                <div key={d.param} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: 13, color: '#7a6a5e', fontWeight: 600, width: 92, flexShrink: 0 }}>{d.label}</span>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {RATING_OPTIONS.map((n) => {
+                      const active = ratings[d.param] === n
+                      return (
+                        <button key={n} onClick={() => setRating(d.param, n)} style={ratingChipStyle(active)}>
+                          {n === 0 ? 'Any' : `${n}${d.symbol}`}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
             </div>
           </FilterSection>
 
@@ -157,6 +180,16 @@ function chipStyle(active: boolean): React.CSSProperties {
   return {
     padding: '7px 13px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
     fontFamily: 'var(--font-mulish), sans-serif',
+    background: active ? 'var(--ink)' : 'transparent',
+    color: active ? 'var(--cream)' : 'var(--ink-light)',
+    border: `1px solid ${active ? 'var(--ink)' : 'rgba(150,130,110,0.18)'}`,
+  }
+}
+
+function ratingChipStyle(active: boolean): React.CSSProperties {
+  return {
+    minWidth: 38, padding: '6px 10px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, cursor: 'pointer',
+    fontFamily: 'var(--font-mulish), sans-serif', textAlign: 'center',
     background: active ? 'var(--ink)' : 'transparent',
     color: active ? 'var(--cream)' : 'var(--ink-light)',
     border: `1px solid ${active ? 'var(--ink)' : 'rgba(150,130,110,0.18)'}`,
