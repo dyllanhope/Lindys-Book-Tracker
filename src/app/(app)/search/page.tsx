@@ -1,40 +1,35 @@
 import { searchBooks } from '@/lib/books/search'
 import { createClient } from '@/lib/supabase/server'
-import { findOrCreateTag } from '@/lib/tags'
+import { importExternalBook } from '@/lib/books/import'
+import { toRouteId } from '@/lib/books/details'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { coverGradient } from '@/lib/coverGradient'
-import type { Book } from '@/lib/types'
+import type { Book, ExternalSource } from '@/lib/types'
 
 async function importBook(formData: FormData) {
   'use server'
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
-  const { data: inserted, error } = await supabase.from('books').insert({
-    user_id: user.id,
+
+  let categories: string[] = []
+  try { categories = JSON.parse((formData.get('categories') as string) || '[]') } catch {}
+
+  const result = await importExternalBook(supabase, user.id, {
     title: formData.get('title') as string,
     author: (formData.get('author') as string) || null,
     isbn: (formData.get('isbn') as string) || null,
     description: (formData.get('description') as string) || null,
-    cover_url: (formData.get('coverUrl') as string) || null,
-    external_source: formData.get('source') as string,
-    external_id: formData.get('externalId') as string,
-  }).select('id').single()
-
-  // Auto-create genre tags from the source's categories and link them.
-  if (inserted) {
-    let categories: string[] = []
-    try { categories = JSON.parse((formData.get('categories') as string) || '[]') } catch {}
-    for (const name of categories) {
-      const tag = await findOrCreateTag(supabase, user.id, name, 'genre')
-      if (tag) await supabase.from('book_tags').insert({ book_id: inserted.id, tag_id: tag.id })
-    }
-  }
+    coverUrl: (formData.get('coverUrl') as string) || null,
+    source: formData.get('source') as ExternalSource,
+    externalId: formData.get('externalId') as string,
+    categories,
+  })
 
   const q = formData.get('q') as string
   const id = formData.get('externalId') as string
-  if (error) redirect(`/search?q=${encodeURIComponent(q)}&importError=${encodeURIComponent(error.message)}`)
+  if ('error' in result) redirect(`/search?q=${encodeURIComponent(q)}&importError=${encodeURIComponent(result.error)}`)
   redirect(`/search?q=${encodeURIComponent(q)}&imported=${encodeURIComponent(id)}`)
 }
 
@@ -83,9 +78,10 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
             {results.map((book) => {
               const owned = libraryMap[book.externalId]
               const justAdded = imported === book.externalId
+              const previewHref = `/search/${book.source}/${encodeURIComponent(toRouteId(book.source, book.externalId))}`
               return (
                 <div key={book.externalId} style={{ display: 'flex', gap: 14, alignItems: 'center', background: 'var(--card)', borderRadius: 18, padding: 11, border: '1px solid rgba(150,130,110,0.08)' }}>
-                  <div style={{ flexShrink: 0, width: 56, height: 84, borderRadius: 10, overflow: 'hidden', boxShadow: '0 8px 14px -9px rgba(90,72,55,0.5)' }}>
+                  <Link href={previewHref} style={{ flexShrink: 0, width: 56, height: 84, borderRadius: 10, overflow: 'hidden', boxShadow: '0 8px 14px -9px rgba(90,72,55,0.5)', display: 'block' }}>
                     {book.coverUrl ? (
                       <img src={book.coverUrl} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
@@ -93,10 +89,12 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
                         <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 9, lineHeight: 1.05, color: '#3a2e27', fontWeight: 600, textAlign: 'center' }}>{book.title}</div>
                       </div>
                     )}
-                  </div>
+                  </Link>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500, lineHeight: 1.2 }}>{book.title}</div>
-                    {book.author && <div style={{ fontSize: 13, color: 'var(--ink-light)', fontStyle: 'italic', fontFamily: 'var(--font-newsreader), serif', marginTop: 2 }}>{book.author}</div>}
+                    <Link href={previewHref} style={{ textDecoration: 'none', display: 'block' }}>
+                      <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500, lineHeight: 1.2 }}>{book.title}</div>
+                      {book.author && <div style={{ fontSize: 13, color: 'var(--ink-light)', fontStyle: 'italic', fontFamily: 'var(--font-newsreader), serif', marginTop: 2 }}>{book.author}</div>}
+                    </Link>
                     <div style={{ marginTop: 10 }}>
                       {owned ? (
                         <Link href={`/books/${owned.id}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, background: '#E7EEE0', color: 'var(--sage)', textDecoration: 'none' }}>In library →</Link>
