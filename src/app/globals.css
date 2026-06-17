@@ -29,6 +29,27 @@ body { margin: 0; background: var(--cream); color: var(--ink); }
 }
 .fade-up { animation: fade-up 0.45s ease both; }
 
+/* Book-spine loading animation (shared across the app) */
+@keyframes jrnlHop {
+  0%, 72%, 100% { transform: translateY(0) scaleY(1); }
+  28%           { transform: translateY(-22px) scaleY(1.05); }
+  40%           { transform: translateY(0) scaleY(0.96); }
+}
+@keyframes jrnlShimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+@keyframes jrnlPhrase {
+  0%        { opacity: 0; transform: translateY(5px); }
+  14%, 86%  { opacity: 1; transform: translateY(0); }
+  100%      { opacity: 0; transform: translateY(-5px); }
+}
+@keyframes jrnlDust {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.6); }
+  30%  { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(var(--dx), -14px) scale(1.1); }
+}
+
 input[type=range].slider { accent-color: var(--accent); }
 
 textarea.note-area {
