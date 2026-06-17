@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { coverGradient } from '@/lib/coverGradient'
 import { findOrCreateTag, TAG_CATEGORIES, TAG_CATEGORY_LABEL, TAG_CATEGORY_STYLE } from '@/lib/tags'
@@ -178,7 +178,7 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
             <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 25, color: 'var(--ink)', fontWeight: 500, marginTop: 22, lineHeight: 1.15, maxWidth: 300 }}>{book.title}</div>
             {book.author && <div style={{ fontSize: 14, color: 'var(--ink-light)', marginTop: 4, fontStyle: 'italic', fontFamily: 'var(--font-newsreader), serif' }}>by {book.author}</div>}
             <OwnedButton owned={owned} onToggle={() => setOwned(!owned)} />
-            {book.description && <AboutBlock description={book.description} />}
+            {book.description && <AboutBlock description={book.description} clampLines={6} />}
           </div>
         </div>
 
@@ -198,7 +198,7 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
           <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 22, color: 'var(--ink)', fontWeight: 500, marginTop: 22, lineHeight: 1.2, textAlign: 'center' }}>{book.title}</div>
           {book.author && <div style={{ fontSize: 14, color: 'var(--ink-light)', marginTop: 4, fontStyle: 'italic', fontFamily: 'var(--font-newsreader), serif', textAlign: 'center' }}>by {book.author}</div>}
           <OwnedButton owned={owned} onToggle={() => setOwned(!owned)} />
-          {book.description && <AboutBlock description={book.description} />}
+          {book.description && <AboutBlock description={book.description} clampLines={20} />}
           <div style={{ marginTop: 'auto', paddingTop: 32 }}>
             <button
               onClick={deleteBook}
@@ -419,11 +419,50 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
   )
 }
 
-function AboutBlock({ description }: { description: string }) {
+function AboutBlock({ description, clampLines = 20 }: { description: string; clampLines?: number }) {
+  const [expanded, setExpanded] = useState(false)
+  const [overflows, setOverflows] = useState(false)
+  const pRef = useRef<HTMLParagraphElement>(null)
+
+  // Measure (while clamped) whether the blurb is actually longer than the clamp.
+  // Re-measure on resize since the mobile/desktop copies are toggled by breakpoint.
+  useEffect(() => {
+    const measure = () => {
+      const el = pRef.current
+      if (el && !expanded) setOverflows(el.scrollHeight > el.clientHeight + 1)
+    }
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [description, clampLines, expanded])
+
   return (
     <div style={{ marginTop: 22, width: '100%', textAlign: 'left', background: 'rgba(255,253,248,0.6)', borderRadius: 16, padding: '16px 18px', border: '1px solid rgba(150,130,110,0.14)' }}>
       <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 16, color: 'var(--ink)', fontWeight: 500, marginBottom: 8 }}>About</div>
-      <p style={{ fontSize: 13.5, color: '#5a4a42', lineHeight: 1.6, margin: 0, whiteSpace: 'pre-wrap' }}>{description}</p>
+      <p
+        ref={pRef}
+        style={{
+          fontSize: 13.5,
+          color: '#5a4a42',
+          lineHeight: 1.6,
+          margin: 0,
+          whiteSpace: 'pre-wrap',
+          ...(expanded
+            ? {}
+            : { display: '-webkit-box', WebkitLineClamp: clampLines, WebkitBoxOrient: 'vertical', overflow: 'hidden' }),
+        }}
+      >
+        {description}
+      </p>
+      {overflows && (
+        <button
+          type="button"
+          onClick={() => setExpanded((e) => !e)}
+          style={{ marginTop: 10, background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--accent)', fontFamily: 'var(--font-mulish), sans-serif' }}
+        >
+          {expanded ? 'Read less' : 'Read more'}
+        </button>
+      )}
     </div>
   )
 }
