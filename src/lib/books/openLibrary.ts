@@ -9,9 +9,13 @@ interface OLDoc {
   cover_i?: number
 }
 
+// OpenLibrary throttles requests without a descriptive User-Agent, so identify the app.
+// https://openlibrary.org/developers/api
+const USER_AGENT = "LindysBookTracker/1.0 (https://github.com/dyllanhope/Lindys-Book-Tracker)"
+
 export async function searchOpenLibrary(query: string): Promise<ExternalBook[]> {
   const url = `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=20`
-  const res = await fetch(url, { next: { revalidate: 60 } })
+  const res = await fetch(url, { next: { revalidate: 60 }, headers: { 'User-Agent': USER_AGENT } })
   if (!res.ok) return []
 
   const data = await res.json()
