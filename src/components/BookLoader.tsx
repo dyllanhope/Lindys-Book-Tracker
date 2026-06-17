@@ -17,7 +17,6 @@ const PHRASES = [
 const shimmer = (a: string, b: string): React.CSSProperties => ({
   background: `linear-gradient(90deg, ${a} 25%, ${b} 50%, ${a} 75%)`,
   backgroundSize: '200% 100%',
-  animation: 'jrnlShimmer 1.3s ease-in-out infinite',
 })
 
 /**
@@ -45,6 +44,7 @@ export function BookLoader({ cards = 3, phrase = true }: { cards?: number; phras
           {SPINE_COLORS.map((c, i) => (
             <div
               key={i}
+              className="jrnl-spine"
               style={{
                 flex: 'none',
                 width: 14,
@@ -53,18 +53,17 @@ export function BookLoader({ cards = 3, phrase = true }: { cards?: number; phras
                 background: `linear-gradient(155deg, ${c} 0%, ${c} 60%, rgba(74,61,53,0.12) 140%)`,
                 boxShadow: 'inset -3px 0 6px -3px rgba(90,72,55,0.3), inset 2px 0 3px -1px rgba(255,253,246,0.5)',
                 transformOrigin: 'bottom center',
-                animation: 'jrnlHop 1.15s cubic-bezier(.4,0,.3,1) infinite',
                 animationDelay: `${i * 0.11}s`,
               }}
             />
           ))}
-          <span style={{ position: 'absolute', left: '30%', bottom: 62, width: 5, height: 5, borderRadius: 99, background: 'rgba(200,170,130,0.7)', ['--dx' as string]: '-10px', animation: 'jrnlDust 1.6s ease-in-out infinite', animationDelay: '0.2s' }} />
-          <span style={{ position: 'absolute', left: '62%', bottom: 58, width: 4, height: 4, borderRadius: 99, background: 'rgba(200,170,130,0.6)', ['--dx' as string]: '12px', animation: 'jrnlDust 1.6s ease-in-out infinite', animationDelay: '0.8s' }} />
+          <span className="jrnl-dust" style={{ position: 'absolute', left: '30%', bottom: 62, width: 5, height: 5, borderRadius: 99, background: 'rgba(200,170,130,0.7)', ['--dx' as string]: '-10px', animationDelay: '0.2s' }} />
+          <span className="jrnl-dust" style={{ position: 'absolute', left: '62%', bottom: 58, width: 4, height: 4, borderRadius: 99, background: 'rgba(200,170,130,0.6)', ['--dx' as string]: '12px', animationDelay: '0.8s' }} />
         </div>
         <div style={{ width: 170, height: 5, borderRadius: 99, marginTop: 3, background: 'linear-gradient(90deg,rgba(150,130,110,0) 0%,rgba(150,130,110,0.32) 20%,rgba(150,130,110,0.32) 80%,rgba(150,130,110,0) 100%)' }} />
         {phrase && (
           <div style={{ height: 24, marginTop: 18, overflow: 'hidden', display: 'flex', alignItems: 'center' }}>
-            <span key={phraseIdx} style={{ fontFamily: 'var(--font-newsreader), serif', fontStyle: 'italic', fontSize: 16, color: 'var(--ink-light)', animation: 'jrnlPhrase 1.9s ease both' }}>
+            <span key={phraseIdx} className="jrnl-phrase" style={{ fontFamily: 'var(--font-newsreader), serif', fontStyle: 'italic', fontSize: 16, color: 'var(--ink-light)' }}>
               {PHRASES[phraseIdx]}
             </span>
           </div>
