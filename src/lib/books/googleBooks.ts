@@ -21,6 +21,27 @@ function withKey(url: string): string {
   return url + (url.includes('?') ? '&' : '?') + `key=${API_KEY}`
 }
 
+// Google Books descriptions are HTML (<b>, <i>, <br>, &amp; …). We render the
+// blurb as plain text, so convert it to clean prose: block tags -> line breaks,
+// strip the rest, and decode the common entities.
+const ENTITIES: Record<string, string> = {
+  '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"',
+  '&#39;': "'", '&apos;': "'", '&nbsp;': ' ',
+}
+export function htmlToText(html: string | null | undefined): string | null {
+  if (!html) return null
+  const text = html
+    .replace(/<\s*br\s*\/?\s*>/gi, '\n')        // <br> -> newline
+    .replace(/<\/\s*(p|div|li|h[1-6])\s*>/gi, '\n') // block closers -> newline
+    .replace(/<[^>]+>/g, '')                       // drop remaining tags
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n))) // numeric entities
+    .replace(/&[a-z]+;/gi, (m) => ENTITIES[m.toLowerCase()] ?? m)   // named entities
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+  return text || null
+}
+
 // Google returns slash-delimited paths like "Fiction / Fantasy / Epic".
 // Flatten to individual genre names, drop overly-generic buckets, and dedupe.
 const GENRE_STOPLIST = new Set(['fiction', 'nonfiction', 'non-fiction', 'general'])
@@ -48,7 +69,7 @@ function volumeToExternalBook(item: GoogleVolume): ExternalBook {
     title: info.title ?? 'Unknown Title',
     author: info.authors?.join(', ') ?? '',
     isbn,
-    description: info.description ?? null,
+    description: htmlToText(info.description),
     coverUrl: cover,
     source: 'google' as const,
     externalId: item.id,
