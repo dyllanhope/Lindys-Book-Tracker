@@ -32,6 +32,9 @@ function parseCategories(categories: string[] | undefined): string[] {
 export async function searchGoogleBooks(query: string): Promise<ExternalBook[]> {
   const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&maxResults=20`
   const res = await fetch(url, { next: { revalidate: 60 } })
+  // Throw on rate limiting so callers can distinguish "quota hit" from "no results"
+  // and fall back to another source.
+  if (res.status === 429) throw new Error('Google Books quota exceeded (429)')
   if (!res.ok) return []
 
   const data = await res.json()
