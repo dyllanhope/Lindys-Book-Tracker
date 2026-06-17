@@ -12,8 +12,9 @@ export async function Sidebar() {
   ])
 
   const done = finishedCount ?? 0
-  const initial = (user?.email ?? 'R')[0].toUpperCase()
-  const email = user?.email ?? ''
+  const username = (user?.user_metadata?.username as string | undefined)?.trim() || ''
+  const displayName = username || user?.email || ''
+  const initial = (displayName || 'R')[0].toUpperCase()
 
   return (
     <div
@@ -73,7 +74,7 @@ export async function Sidebar() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 600, color: '#4A3D35', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {email}
+              {displayName}
             </div>
             <div style={{ fontSize: 11, color: '#B3A595', marginTop: 1 }}>{done} books read</div>
           </div>
