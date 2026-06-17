@@ -113,11 +113,12 @@ export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly }: Props
         )}
       </div>
 
-      {/* Expandable panel */}
+      {/* Expandable panel — each category is its own accordion */}
       {open && (
-        <div style={{ marginTop: 12, background: 'var(--card)', borderRadius: 18, padding: '18px 20px', border: '1px solid rgba(150,130,110,0.12)' }}>
+        <div style={{ marginTop: 12, background: 'var(--card)', borderRadius: 18, padding: '4px 20px', border: '1px solid rgba(150,130,110,0.12)' }}>
           {/* Ratings — overall + per dimension */}
-          <FilterSection title="Ratings — minimum (& up)">
+          <Accordion title="Ratings" badge={activeRatingCount} defaultOpen={activeRatingCount > 0}>
+            <div style={{ fontSize: 11.5, color: 'var(--ink-light)', marginBottom: 10 }}>Minimum rating (& up)</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
               {RATING_DIMS.map((d) => (
                 <div key={d.param} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
@@ -135,40 +136,43 @@ export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly }: Props
                 </div>
               ))}
             </div>
-          </FilterSection>
+          </Accordion>
 
           {/* Owned */}
-          <FilterSection title="Ownership">
+          <Accordion title="Ownership" badge={ownedOnly ? 1 : 0} defaultOpen={ownedOnly}>
             <button onClick={toggleOwned} style={chipStyle(ownedOnly)}>On my shelf</button>
-          </FilterSection>
+          </Accordion>
 
           {/* Tags by category */}
           {grouped.length === 0 ? (
-            <FilterSection title="Tags">
+            <Accordion title="Tags" defaultOpen={false}>
               <p style={{ fontSize: 13, color: 'var(--ink-light)', margin: 0 }}>
                 No tags yet — add genres and tags from a book&apos;s page.
               </p>
-            </FilterSection>
+            </Accordion>
           ) : (
-            grouped.map((group) => (
-              <FilterSection key={group.value} title={TAG_CATEGORY_LABEL[group.value]}>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-                  {group.tags.map((t) => {
-                    const active = activeTagSet.has(t.id)
-                    const s = TAG_CATEGORY_STYLE[t.category]
-                    return (
-                      <button
-                        key={t.id}
-                        onClick={() => toggleTag(t.id)}
-                        style={{ padding: '7px 13px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-mulish), sans-serif', background: active ? s.bg : 'transparent', color: active ? s.fg : 'var(--ink-light)', border: `1px solid ${active ? s.border : 'rgba(150,130,110,0.18)'}` }}
-                      >
-                        {t.name}
-                      </button>
-                    )
-                  })}
-                </div>
-              </FilterSection>
-            ))
+            grouped.map((group) => {
+              const activeInGroup = group.tags.filter((t) => activeTagSet.has(t.id)).length
+              return (
+                <Accordion key={group.value} title={TAG_CATEGORY_LABEL[group.value]} badge={activeInGroup} defaultOpen={activeInGroup > 0}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+                    {group.tags.map((t) => {
+                      const active = activeTagSet.has(t.id)
+                      const s = TAG_CATEGORY_STYLE[t.category]
+                      return (
+                        <button
+                          key={t.id}
+                          onClick={() => toggleTag(t.id)}
+                          style={{ padding: '7px 13px', borderRadius: 99, fontSize: 12.5, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-mulish), sans-serif', background: active ? s.bg : 'transparent', color: active ? s.fg : 'var(--ink-light)', border: `1px solid ${active ? s.border : 'rgba(150,130,110,0.18)'}` }}
+                        >
+                          {t.name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </Accordion>
+              )
+            })
           )}
         </div>
       )}
@@ -196,11 +200,23 @@ function ratingChipStyle(active: boolean): React.CSSProperties {
   }
 }
 
-function FilterSection({ title, children }: { title: string; children: React.ReactNode }) {
+function Accordion({ title, badge = 0, defaultOpen = false, children }: { title: string; badge?: number; defaultOpen?: boolean; children: React.ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen)
   return (
-    <div style={{ marginBottom: 16 }}>
-      <div style={{ fontSize: 11, letterSpacing: '1px', textTransform: 'uppercase', color: '#A8978A', fontWeight: 700, marginBottom: 9 }}>{title}</div>
-      {children}
+    <div style={{ borderTop: '1px solid rgba(150,130,110,0.12)' }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '14px 0', background: 'none', border: 'none', cursor: 'pointer' }}
+      >
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 11, letterSpacing: '1px', textTransform: 'uppercase', color: '#A8978A', fontWeight: 700 }}>
+          {title}
+          {badge > 0 && (
+            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: 17, height: 17, padding: '0 5px', borderRadius: 99, background: 'var(--ink)', color: 'var(--cream)', fontSize: 10, fontWeight: 700, letterSpacing: 0 }}>{badge}</span>
+          )}
+        </span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#A8978A" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .2s', flexShrink: 0 }}><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      {open && <div style={{ paddingBottom: 16 }}>{children}</div>}
     </div>
   )
 }
