@@ -1,6 +1,16 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 
+async function updateProfile(formData: FormData) {
+  'use server'
+  const username = (formData.get('username') as string).trim()
+  if (username.length > 40) redirect('/account?error=Username+must+be+40+characters+or+fewer')
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({ data: { username } })
+  if (error) redirect(`/account?error=${encodeURIComponent(error.message)}`)
+  redirect('/account?success=profile')
+}
+
 async function changePassword(formData: FormData) {
   'use server'
   const password = formData.get('password') as string
@@ -10,7 +20,7 @@ async function changePassword(formData: FormData) {
   const supabase = await createClient()
   const { error } = await supabase.auth.updateUser({ password })
   if (error) redirect(`/account?error=${encodeURIComponent(error.message)}`)
-  redirect('/account?success=1')
+  redirect('/account?success=password')
 }
 
 async function signOut() {
@@ -35,7 +45,9 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
     supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'not_started'),
   ])
 
-  const initial = (user?.email ?? 'R')[0].toUpperCase()
+  const username = (user?.user_metadata?.username as string | undefined)?.trim() || ''
+  const displayName = username || user?.email || ''
+  const initial = (displayName || 'R')[0].toUpperCase()
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
@@ -71,8 +83,11 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
           {initial}
         </div>
         <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 22, color: 'var(--ink)', fontWeight: 500, marginTop: 16 }}>
-          {user?.email}
+          {displayName}
         </div>
+        {username && (
+          <div style={{ fontSize: 12.5, color: 'var(--ink-light)', marginTop: 3 }}>{user?.email}</div>
+        )}
       </div>
 
       {/* Stats */}
@@ -100,7 +115,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         ))}
       </div>
 
-      {/* Change password */}
+      {/* Display name */}
       <div
         style={{
           marginTop: 24,
@@ -110,10 +125,47 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
           border: '1px solid rgba(150,130,110,0.08)',
         }}
       >
+        <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 18, color: 'var(--ink)', fontWeight: 500, marginBottom: 6 }}>
+          Display name
+        </div>
+        <p style={{ fontSize: 12.5, color: 'var(--ink-light)', marginBottom: 16 }}>
+          Choose how your name appears across the app. Your email stays your login.
+        </p>
+        {success === 'profile' && (
+          <p style={{ fontSize: 13, color: 'var(--sage)', marginBottom: 14 }}>Display name updated.</p>
+        )}
+        <form action={updateProfile} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <input
+            name="username"
+            type="text"
+            defaultValue={username}
+            maxLength={40}
+            placeholder="e.g. Lindy"
+            style={inputStyle}
+          />
+          <button
+            type="submit"
+            style={{ background: 'var(--ink)', color: 'var(--cream)', border: 'none', borderRadius: 12, padding: '12px 0', fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'var(--font-mulish), sans-serif' }}
+          >
+            Save name
+          </button>
+        </form>
+      </div>
+
+      {/* Change password */}
+      <div
+        style={{
+          marginTop: 16,
+          background: 'var(--card)',
+          borderRadius: 22,
+          padding: '20px 18px',
+          border: '1px solid rgba(150,130,110,0.08)',
+        }}
+      >
         <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 18, color: 'var(--ink)', fontWeight: 500, marginBottom: 16 }}>
           Change password
         </div>
-        {success && (
+        {success === 'password' && (
           <p style={{ fontSize: 13, color: 'var(--sage)', marginBottom: 14 }}>Password updated successfully.</p>
         )}
         <form action={changePassword} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
