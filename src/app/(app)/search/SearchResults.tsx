@@ -135,7 +135,7 @@ export function SearchResults() {
       </Link>
 
       {error && <p style={{ marginBottom: 16, fontSize: 13, color: '#c0392b' }}>{error}</p>}
-      {loading && <p style={{ fontSize: 13, color: 'var(--ink-light)' }}>Searching…</p>}
+      {loading && <SearchSkeleton />}
       {hasSearch && !loading && results.length === 0 && !error && (
         <p style={{ fontSize: 13, color: 'var(--ink-light)' }}>No results. Try a different search or <Link href="/books/new" style={{ color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>add manually</Link>.</p>
       )}
@@ -194,7 +194,7 @@ export function SearchResults() {
         </div>
       )}
 
-      {!hasSearch && !loading && (
+      {!hasSearch && !loading && !error && (
         <div>
           <div style={{ fontSize: 12, letterSpacing: '1.4px', textTransform: 'uppercase', color: '#A8978A', fontWeight: 700, marginBottom: 14 }}>Browse by mood</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 11, marginBottom: 40 }}>
@@ -206,6 +206,30 @@ export function SearchResults() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+/** Shimmering placeholder cards shown while a search is in flight. */
+function SearchSkeleton() {
+  const bar = (w: string, h: number): React.CSSProperties => ({
+    width: w, height: h, borderRadius: 6, background: 'rgba(150,130,110,0.16)',
+  })
+  return (
+    <div>
+      <div style={{ ...bar('110px', 13), marginBottom: 16 }} className="animate-pulse" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-[14px]">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="animate-pulse" style={{ display: 'flex', gap: 14, alignItems: 'center', background: 'var(--card)', borderRadius: 18, padding: 11, border: '1px solid rgba(150,130,110,0.08)' }}>
+            <div style={{ ...bar('56px', 84), flexShrink: 0, borderRadius: 10 }} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ ...bar('70%', 16), marginBottom: 8 }} />
+              <div style={{ ...bar('40%', 12), marginBottom: 14 }} />
+              <div style={{ ...bar('96px', 28), borderRadius: 99 }} />
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }

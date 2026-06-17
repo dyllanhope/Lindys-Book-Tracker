@@ -13,6 +13,14 @@ interface GoogleVolume {
   }
 }
 
+// An API key lifts the very low anonymous quota (which 429s constantly and forces
+// the slow Open Library fallback). Set GOOGLE_BOOKS_API_KEY to keep the fast path.
+const API_KEY = process.env.GOOGLE_BOOKS_API_KEY
+function withKey(url: string): string {
+  if (!API_KEY) return url
+  return url + (url.includes('?') ? '&' : '?') + `key=${API_KEY}`
+}
+
 // Google returns slash-delimited paths like "Fiction / Fantasy / Epic".
 // Flatten to individual genre names, drop overly-generic buckets, and dedupe.
 const GENRE_STOPLIST = new Set(['fiction', 'nonfiction', 'non-fiction', 'general'])
@@ -50,7 +58,7 @@ function volumeToExternalBook(item: GoogleVolume): ExternalBook {
 
 /** Fetch a single Google volume by id (full volumeInfo). Throws on 429 like search. */
 export async function getGoogleVolume(id: string): Promise<ExternalBook | null> {
-  const res = await fetchWithRetry(`https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(id)}`, {
+  const res = await fetchWithRetry(withKey(`https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(id)}`), {
     next: { revalidate: 3600 },
   })
   if (res.status === 429) throw new Error('Google Books quota exceeded (429)')
@@ -72,7 +80,7 @@ export async function searchGoogleBooks(query: string, opts: SearchOpts = {}): P
   if (opts.author?.trim()) terms.push(`inauthor:"${opts.author.trim()}"`)
   const q = terms.join(' ')
 
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&startIndex=${startIndex}&maxResults=${pageSize}`
+  const url = withKey(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&startIndex=${startIndex}&maxResults=${pageSize}`)
   const res = await fetchWithRetry(url, { next: { revalidate: 60 } })
   // Throw on rate limiting so callers can distinguish "quota hit" from "no results"
   // and fall back to another source.
