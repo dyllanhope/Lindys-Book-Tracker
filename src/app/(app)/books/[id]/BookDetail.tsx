@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { coverGradient } from '@/lib/coverGradient'
 import { findOrCreateTag, TAG_CATEGORIES, TAG_CATEGORY_LABEL, TAG_CATEGORY_STYLE } from '@/lib/tags'
+import { hexToRgba } from '@/lib/shelfColors'
 import type { Book, Rating, Note, Collection, Tag, RatingCategory, ReadingStatus, TagCategory } from '@/lib/types'
 
 const RATING_CATEGORIES: { key: RatingCategory; label: string }[] = [
@@ -390,8 +391,9 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
                       key={col.id}
                       onClick={() => toggleCollection(col.id)}
                       disabled={togglingCol === col.id}
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s', background: isMember ? '#E7EEE0' : 'var(--card)', color: isMember ? 'var(--sage)' : 'var(--ink-light)', border: `1px solid ${isMember ? 'rgba(120,150,110,0.4)' : 'rgba(150,130,110,0.16)'}`, fontFamily: 'var(--font-mulish), sans-serif' }}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 14px', borderRadius: 99, fontSize: 13, fontWeight: 600, cursor: 'pointer', transition: 'all .2s', background: isMember ? hexToRgba(col.color, 0.16) : 'var(--card)', color: isMember ? col.color : 'var(--ink-light)', border: `1px solid ${isMember ? hexToRgba(col.color, 0.5) : 'rgba(150,130,110,0.16)'}`, fontFamily: 'var(--font-mulish), sans-serif' }}
                     >
+                      <span style={{ width: 9, height: 9, borderRadius: 99, background: col.color, flexShrink: 0, opacity: isMember ? 1 : 0.5 }} />
                       {col.name}
                     </button>
                   )

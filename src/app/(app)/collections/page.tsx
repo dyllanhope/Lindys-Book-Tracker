@@ -9,7 +9,7 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
 
   const { data: collections } = await supabase
     .from('collections')
-    .select('id, name, created_at, user_id')
+    .select('id, name, color, created_at, user_id')
     .order('name')
 
   return (
@@ -46,12 +46,16 @@ export default async function CollectionsPage({ searchParams }: { searchParams: 
                 padding: 20,
                 textDecoration: 'none',
                 border: '1px solid rgba(150,130,110,0.08)',
+                borderLeft: `4px solid ${col.color}`,
                 boxShadow: '0 14px 28px -22px rgba(120,95,70,0.5)',
                 display: 'block',
               }}
             >
-              <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 21, color: 'var(--ink)', fontWeight: 500 }}>
-                {col.name}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                <span style={{ width: 11, height: 11, borderRadius: 99, background: col.color, flexShrink: 0 }} />
+                <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 21, color: 'var(--ink)', fontWeight: 500 }}>
+                  {col.name}
+                </div>
               </div>
               <div style={{ fontSize: 12, color: 'var(--ink-light)', marginTop: 6 }}>
                 View shelf →

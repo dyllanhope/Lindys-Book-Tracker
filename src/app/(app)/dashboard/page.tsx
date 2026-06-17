@@ -42,7 +42,7 @@ export default async function DashboardPage() {
     supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'finished'),
     supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'currently_reading'),
     supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'not_started'),
-    supabase.from('collections').select('id, name, created_at, user_id').order('created_at', { ascending: true }).limit(4),
+    supabase.from('collections').select('id, name, color, created_at, user_id').order('created_at', { ascending: true }).limit(4),
   ])
 
   const featured = reading?.[0] as Book | undefined
@@ -203,8 +203,11 @@ export default async function DashboardPage() {
           {/* Mobile: horizontal scroll */}
           <div className="no-scrollbar flex md:hidden" style={{ margin: '14px -22px 0', padding: '4px 22px', gap: 14, overflowX: 'auto' }}>
             {collections.map((col) => (
-              <Link key={col.id} href={`/collections/${col.id}`} style={{ flexShrink: 0, width: 172, background: 'var(--card)', borderRadius: 22, padding: 16, textDecoration: 'none', border: '1px solid rgba(150,130,110,0.08)', boxShadow: '0 12px 24px -20px rgba(120,95,70,0.5)' }}>
-                <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500 }}>{col.name}</div>
+              <Link key={col.id} href={`/collections/${col.id}`} style={{ flexShrink: 0, width: 172, background: 'var(--card)', borderRadius: 22, padding: 16, textDecoration: 'none', border: '1px solid rgba(150,130,110,0.08)', borderLeft: `4px solid ${col.color}`, boxShadow: '0 12px 24px -20px rgba(120,95,70,0.5)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 10, height: 10, borderRadius: 99, background: col.color, flexShrink: 0 }} />
+                  <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500 }}>{col.name}</div>
+                </div>
               </Link>
             ))}
           </div>
