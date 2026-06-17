@@ -201,7 +201,7 @@ export default async function DashboardPage() {
             <Link href="/collections" style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>All shelves →</Link>
           </div>
           {/* Mobile: horizontal scroll */}
-          <div className="no-scrollbar md:hidden" style={{ margin: '14px -22px 0', padding: '4px 22px', display: 'flex', gap: 14, overflowX: 'auto' }}>
+          <div className="no-scrollbar flex md:hidden" style={{ margin: '14px -22px 0', padding: '4px 22px', gap: 14, overflowX: 'auto' }}>
             {collections.map((col) => (
               <Link key={col.id} href={`/collections/${col.id}`} style={{ flexShrink: 0, width: 172, background: 'var(--card)', borderRadius: 22, padding: 16, textDecoration: 'none', border: '1px solid rgba(150,130,110,0.08)', boxShadow: '0 12px 24px -20px rgba(120,95,70,0.5)' }}>
                 <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500 }}>{col.name}</div>

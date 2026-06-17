@@ -18,9 +18,16 @@ interface Props {
   activeTagIds: string[]
   ratings: Ratings
   ownedOnly: boolean
+  sort: string
 }
 
 const RATING_OPTIONS = [0, 1, 2, 3, 4, 5]
+
+const SORT_OPTIONS: { value: string; label: string }[] = [
+  { value: 'date_added', label: 'Recently added' },
+  { value: 'title', label: 'Title' },
+  { value: 'author', label: 'Author' },
+]
 
 const RATING_DIMS: { param: keyof Ratings; label: string; symbol: string }[] = [
   { param: 'minRating', label: 'Overall', symbol: '★' },
@@ -30,7 +37,7 @@ const RATING_DIMS: { param: keyof Ratings; label: string; symbol: string }[] = [
   { param: 'minSpice', label: 'Spice', symbol: '🌶️' },
 ]
 
-export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly }: Props) {
+export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly, sort }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [open, setOpen] = useState(false)
@@ -60,6 +67,13 @@ export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly }: Props
     push((p) => {
       if (n > 0) p.set(param, String(n))
       else p.delete(param)
+    })
+  }
+
+  function setSort(value: string) {
+    push((p) => {
+      if (value && value !== 'date_added') p.set('sort', value)
+      else p.delete('sort')
     })
   }
 
@@ -116,6 +130,17 @@ export function LibraryFilters({ tags, activeTagIds, ratings, ownedOnly }: Props
       {/* Expandable panel — each category is its own accordion */}
       {open && (
         <div style={{ marginTop: 12, background: 'var(--card)', borderRadius: 18, padding: '4px 20px', border: '1px solid rgba(150,130,110,0.12)' }}>
+          {/* Sort */}
+          <Accordion title="Sort" defaultOpen={sort !== 'date_added'}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+              {SORT_OPTIONS.map((o) => (
+                <button key={o.value} onClick={() => setSort(o.value)} style={chipStyle(sort === o.value)}>
+                  {o.label}
+                </button>
+              ))}
+            </div>
+          </Accordion>
+
           {/* Ratings — overall + per dimension */}
           <Accordion title="Ratings" badge={activeRatingCount} defaultOpen={activeRatingCount > 0}>
             <div style={{ fontSize: 11.5, color: 'var(--ink-light)', marginBottom: 10 }}>Minimum rating (& up)</div>
