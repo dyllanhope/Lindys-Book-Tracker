@@ -59,6 +59,10 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
       </div>
       <form action={signUp} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <div>
+          <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>Display name</label>
+          <input name="username" type="text" maxLength={40} autoComplete="nickname" placeholder="e.g. Lindy" style={inputStyle} />
+        </div>
+        <div>
           <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>Email</label>
           <input name="email" type="email" required autoComplete="email" style={inputStyle} />
         </div>
