@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { coverGradient } from '@/lib/coverGradient'
+import { BookCover } from '@/components/BookCover'
 import { findOrCreateTag, TAG_CATEGORIES, TAG_CATEGORY_LABEL, TAG_CATEGORY_STYLE } from '@/lib/tags'
 import { hexToRgba } from '@/lib/shelfColors'
 import type { Book, Rating, Note, Collection, Tag, RatingCategory, ReadingStatus, TagCategory } from '@/lib/types'
@@ -510,21 +511,10 @@ function AboutBlock({ description, clampLines = 20 }: { description: string; cla
   )
 }
 
-function CoverImage({ book, width, height, fontSize }: { book: Book; width: number; height: number; fontSize: number }) {
+function CoverImage({ book, width, height }: { book: Book; width: number; height: number; fontSize?: number }) {
   return (
-    <div style={{ width, height, borderRadius: 16, overflow: 'hidden', boxShadow: '0 26px 44px -20px rgba(90,72,55,0.55)', flexShrink: 0 }}>
-      {book.cover_url ? (
-        <img src={book.cover_url} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      ) : (
-        <div style={{ width: '100%', height: '100%', background: coverGradient(book.id), display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '22px 20px' }}>
-          <div />
-          <div>
-            <div style={{ width: 30, height: 2, background: 'rgba(74,61,53,0.4)', margin: '0 auto 12px' }} />
-            <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize, lineHeight: 1.1, color: '#3a2e27', fontWeight: 600, textAlign: 'center' }}>{book.title}</div>
-            {book.author && <div style={{ fontSize: 11, color: 'rgba(74,61,53,0.65)', marginTop: 8, fontStyle: 'italic', textAlign: 'center' }}>{book.author}</div>}
-          </div>
-        </div>
-      )}
+    <div style={{ width, height, flexShrink: 0 }}>
+      <BookCover book={book} radius={16} padding="20px 18px" />
     </div>
   )
 }

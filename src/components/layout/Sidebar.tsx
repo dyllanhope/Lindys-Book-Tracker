@@ -1,17 +1,24 @@
 import { createClient } from '@/lib/supabase/server'
 import { SidebarNav } from './SidebarNav'
+import { SidebarGoal } from './SidebarGoal'
 
 export async function Sidebar() {
   const supabase = await createClient()
+  const year = new Date().getFullYear()
   const [
     { data: { user } },
     { count: finishedCount },
+    { count: finishedThisYear },
+    { data: goalRow },
   ] = await Promise.all([
     supabase.auth.getUser(),
     supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'finished'),
+    supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'finished').gte('date_finished', `${year}-01-01`).lte('date_finished', `${year}-12-31`),
+    supabase.from('reading_goals').select('target').eq('year', year).maybeSingle(),
   ])
 
   const done = finishedCount ?? 0
+  const goalTarget = (goalRow as { target: number } | null)?.target ?? null
   const username = (user?.user_metadata?.username as string | undefined)?.trim() || ''
   const displayName = username || user?.email || ''
   const initial = (displayName || 'R')[0].toUpperCase()
@@ -39,6 +46,9 @@ export async function Sidebar() {
 
       {/* Nav */}
       <SidebarNav />
+
+      {/* Reading goal */}
+      <SidebarGoal year={year} target={goalTarget} finished={finishedThisYear ?? 0} />
 
       {/* Avatar */}
       <div style={{ padding: '0 16px' }}>

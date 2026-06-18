@@ -9,7 +9,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\eslint.config.mjs",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_eslint_config_mjs",
-      "community": 22,
+      "community": 23,
       "norm_label": "eslint.config.mjs"
     },
     {
@@ -18,7 +18,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\next-env.d.ts",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_next_env_d_ts",
-      "community": 23,
+      "community": 24,
       "norm_label": "next-env.d.ts"
     },
     {
@@ -27,7 +27,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\next.config.ts",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_next_config_ts",
-      "community": 24,
+      "community": 25,
       "norm_label": "next.config.ts"
     },
     {
@@ -36,7 +36,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\postcss.config.mjs",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_postcss_config_mjs",
-      "community": 25,
+      "community": 26,
       "norm_label": "postcss.config.mjs"
     },
     {
@@ -45,7 +45,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\screenshot-colorpicker.mjs",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_screenshot_colorpicker_mjs",
-      "community": 26,
+      "community": 27,
       "norm_label": "screenshot-colorpicker.mjs"
     },
     {
@@ -54,7 +54,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\screenshot-loader.mjs",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_screenshot_loader_mjs",
-      "community": 27,
+      "community": 28,
       "norm_label": "screenshot-loader.mjs"
     },
     {
@@ -153,7 +153,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\layout.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_layout_tsx",
-      "community": 28,
+      "community": 29,
       "norm_label": "layout.tsx"
     },
     {
@@ -180,7 +180,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\layout.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_app_layout_tsx",
-      "community": 29,
+      "community": 30,
       "norm_label": "layout.tsx"
     },
     {
@@ -331,7 +331,7 @@
       "label": "saveDetails()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L61",
+      "source_location": "L62",
       "id": "bookdetail_savedetails",
       "community": 0,
       "norm_label": "savedetails()"
@@ -340,7 +340,7 @@
       "label": "setRating()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L79",
+      "source_location": "L80",
       "id": "bookdetail_setrating",
       "community": 0,
       "norm_label": "setrating()"
@@ -349,7 +349,7 @@
       "label": "addNote()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L90",
+      "source_location": "L91",
       "id": "bookdetail_addnote",
       "community": 0,
       "norm_label": "addnote()"
@@ -358,7 +358,7 @@
       "label": "deleteNote()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L103",
+      "source_location": "L104",
       "id": "bookdetail_deletenote",
       "community": 0,
       "norm_label": "deletenote()"
@@ -367,7 +367,7 @@
       "label": "toggleCollection()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L109",
+      "source_location": "L110",
       "id": "bookdetail_togglecollection",
       "community": 0,
       "norm_label": "togglecollection()"
@@ -376,7 +376,7 @@
       "label": "addTag()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L122",
+      "source_location": "L123",
       "id": "bookdetail_addtag",
       "community": 0,
       "norm_label": "addtag()"
@@ -385,7 +385,7 @@
       "label": "removeTag()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L137",
+      "source_location": "L138",
       "id": "bookdetail_removetag",
       "community": 0,
       "norm_label": "removetag()"
@@ -394,7 +394,7 @@
       "label": "deleteBook()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L143",
+      "source_location": "L144",
       "id": "bookdetail_deletebook",
       "community": 0,
       "norm_label": "deletebook()"
@@ -403,7 +403,7 @@
       "label": "measure()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L473",
+      "source_location": "L474",
       "id": "bookdetail_measure",
       "community": 0,
       "norm_label": "measure()"
@@ -414,7 +414,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\page.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_page_tsx",
-      "community": 30,
+      "community": 31,
       "norm_label": "page.tsx"
     },
     {
@@ -459,7 +459,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\collections\\CustomColorSwatch.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_app_collections_customcolorswatch_tsx",
-      "community": 31,
+      "community": 32,
       "norm_label": "customcolorswatch.tsx"
     },
     {
@@ -468,7 +468,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\collections\\NewCollectionForm.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_app_collections_newcollectionform_tsx",
-      "community": 32,
+      "community": 33,
       "norm_label": "newcollectionform.tsx"
     },
     {
@@ -477,7 +477,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\collections\\page.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_app_collections_page_tsx",
-      "community": 33,
+      "community": 34,
       "norm_label": "page.tsx"
     },
     {
@@ -504,7 +504,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\collections\\[id]\\page.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_app_collections_id_page_tsx",
-      "community": 34,
+      "community": 35,
       "norm_label": "page.tsx"
     },
     {
@@ -513,7 +513,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\collections\\[id]\\ShelfColorPicker.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_app_collections_id_shelfcolorpicker_tsx",
-      "community": 35,
+      "community": 36,
       "norm_label": "shelfcolorpicker.tsx"
     },
     {
@@ -547,7 +547,7 @@
       "label": "greeting()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\dashboard\\page.tsx",
-      "source_location": "L8",
+      "source_location": "L10",
       "id": "page_greeting",
       "community": 7,
       "norm_label": "greeting()"
@@ -556,7 +556,7 @@
       "label": "todayDate()",
       "file_type": "code",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\dashboard\\page.tsx",
-      "source_location": "L13",
+      "source_location": "L15",
       "id": "page_todaydate",
       "community": 7,
       "norm_label": "todaydate()"
@@ -720,7 +720,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\search\\page.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_app_search_page_tsx",
-      "community": 36,
+      "community": 37,
       "norm_label": "page.tsx"
     },
     {
@@ -837,7 +837,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(auth)\\layout.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_auth_layout_tsx",
-      "community": 37,
+      "community": 38,
       "norm_label": "layout.tsx"
     },
     {
@@ -846,7 +846,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(auth)\\login\\page.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_auth_login_page_tsx",
-      "community": 38,
+      "community": 39,
       "norm_label": "page.tsx"
     },
     {
@@ -855,7 +855,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(auth)\\register\\page.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_auth_register_page_tsx",
-      "community": 39,
+      "community": 40,
       "norm_label": "page.tsx"
     },
     {
@@ -884,6 +884,15 @@
       "id": "c_users_user_pc_lindy_s_book_tracker_src_app_auth_callback_route_ts",
       "community": 1,
       "norm_label": "route.ts"
+    },
+    {
+      "label": "BookCover.tsx",
+      "file_type": "code",
+      "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\BookCover.tsx",
+      "source_location": "L1",
+      "id": "c_users_user_pc_lindy_s_book_tracker_src_components_bookcover_tsx",
+      "community": 41,
+      "norm_label": "bookcover.tsx"
     },
     {
       "label": "BookLoader.tsx",
@@ -963,8 +972,26 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\layout\\Sidebar.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_components_layout_sidebar_tsx",
-      "community": 40,
+      "community": 42,
       "norm_label": "sidebar.tsx"
+    },
+    {
+      "label": "SidebarGoal.tsx",
+      "file_type": "code",
+      "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\layout\\SidebarGoal.tsx",
+      "source_location": "L1",
+      "id": "c_users_user_pc_lindy_s_book_tracker_src_components_layout_sidebargoal_tsx",
+      "community": 18,
+      "norm_label": "sidebargoal.tsx"
+    },
+    {
+      "label": "save()",
+      "file_type": "code",
+      "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\layout\\SidebarGoal.tsx",
+      "source_location": "L18",
+      "id": "sidebargoal_save",
+      "community": 18,
+      "norm_label": "save()"
     },
     {
       "label": "SidebarNav.tsx",
@@ -972,7 +999,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\layout\\SidebarNav.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_components_layout_sidebarnav_tsx",
-      "community": 41,
+      "community": 43,
       "norm_label": "sidebarnav.tsx"
     },
     {
@@ -981,7 +1008,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\ui\\Badge.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_components_ui_badge_tsx",
-      "community": 18,
+      "community": 19,
       "norm_label": "badge.tsx"
     },
     {
@@ -990,7 +1017,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\ui\\Badge.tsx",
       "source_location": "L17",
       "id": "badge_badge",
-      "community": 18,
+      "community": 19,
       "norm_label": "badge()"
     },
     {
@@ -999,7 +1026,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\ui\\Button.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_components_ui_button_tsx",
-      "community": 19,
+      "community": 20,
       "norm_label": "button.tsx"
     },
     {
@@ -1008,7 +1035,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\ui\\Button.tsx",
       "source_location": "L24",
       "id": "button_button",
-      "community": 19,
+      "community": 20,
       "norm_label": "button()"
     },
     {
@@ -1017,7 +1044,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\ui\\Input.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_components_ui_input_tsx",
-      "community": 42,
+      "community": 44,
       "norm_label": "input.tsx"
     },
     {
@@ -1026,7 +1053,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\ui\\Select.tsx",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_components_ui_select_tsx",
-      "community": 43,
+      "community": 45,
       "norm_label": "select.tsx"
     },
     {
@@ -1062,7 +1089,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\lib\\shelfColors.ts",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_lib_shelfcolors_ts",
-      "community": 20,
+      "community": 21,
       "norm_label": "shelfcolors.ts"
     },
     {
@@ -1071,7 +1098,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\lib\\shelfColors.ts",
       "source_location": "L16",
       "id": "shelfcolors_hextorgba",
-      "community": 20,
+      "community": 21,
       "norm_label": "hextorgba()"
     },
     {
@@ -1116,7 +1143,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\lib\\types.ts",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_lib_types_ts",
-      "community": 44,
+      "community": 46,
       "norm_label": "types.ts"
     },
     {
@@ -1350,7 +1377,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\lib\\supabase\\client.ts",
       "source_location": "L1",
       "id": "c_users_user_pc_lindy_s_book_tracker_src_lib_supabase_client_ts",
-      "community": 21,
+      "community": 22,
       "norm_label": "client.ts"
     },
     {
@@ -1359,7 +1386,7 @@
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\lib\\supabase\\client.ts",
       "source_location": "L3",
       "id": "client_createclient",
-      "community": 21,
+      "community": 22,
       "norm_label": "createclient()"
     },
     {
@@ -1866,7 +1893,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L61",
+      "source_location": "L62",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_savedetails",
@@ -1878,7 +1905,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L79",
+      "source_location": "L80",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_setrating",
@@ -1890,7 +1917,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L90",
+      "source_location": "L91",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_addnote",
@@ -1902,7 +1929,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L103",
+      "source_location": "L104",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_deletenote",
@@ -1914,7 +1941,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L109",
+      "source_location": "L110",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_togglecollection",
@@ -1926,7 +1953,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L122",
+      "source_location": "L123",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_addtag",
@@ -1938,7 +1965,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L137",
+      "source_location": "L138",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_removetag",
@@ -1950,7 +1977,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L143",
+      "source_location": "L144",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_deletebook",
@@ -1962,7 +1989,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\books\\[id]\\BookDetail.tsx",
-      "source_location": "L473",
+      "source_location": "L474",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_books_id_bookdetail_tsx",
       "_tgt": "bookdetail_measure",
@@ -2226,7 +2253,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\dashboard\\page.tsx",
-      "source_location": "L8",
+      "source_location": "L10",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_dashboard_page_tsx",
       "_tgt": "page_greeting",
@@ -2238,7 +2265,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\app\\(app)\\dashboard\\page.tsx",
-      "source_location": "L13",
+      "source_location": "L15",
       "weight": 1.0,
       "_src": "c_users_user_pc_lindy_s_book_tracker_src_app_app_dashboard_page_tsx",
       "_tgt": "page_todaydate",
@@ -2881,6 +2908,18 @@
       "_tgt": "server_createclient",
       "source": "navbar_signout",
       "target": "server_createclient"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:\\Users\\user-pc\\Lindy's book tracker\\src\\components\\layout\\SidebarGoal.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_src": "c_users_user_pc_lindy_s_book_tracker_src_components_layout_sidebargoal_tsx",
+      "_tgt": "sidebargoal_save",
+      "source": "c_users_user_pc_lindy_s_book_tracker_src_components_layout_sidebargoal_tsx",
+      "target": "sidebargoal_save",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",

@@ -56,6 +56,25 @@ body { margin: 0; background: var(--cream); color: var(--ink); }
 .jrnl-phrase  { animation: jrnlPhrase 1.9s ease both; }
 .jrnl-dust    { animation: jrnlDust 1.6s ease-in-out infinite; }
 
+/* Physical book cover: stacked-pages edge + lift-on-hover (from prototype) */
+.book-cover {
+  transform-origin: center bottom;
+  transition: transform .3s cubic-bezier(.2,.75,.25,1), box-shadow .3s ease;
+  will-change: transform;
+  box-shadow:
+    2px 0 0 rgba(255,252,244,0.92), 3.5px 0 0 rgba(120,95,70,0.18),
+    5px 0 0 rgba(255,252,244,0.84), 6.5px 0 0 rgba(120,95,70,0.13),
+    0 18px 28px -16px rgba(90,72,55,0.55);
+}
+.book-cover:hover {
+  transform: translateY(-4px) scale(1.02) rotate(-0.4deg);
+  box-shadow:
+    2px 0 0 rgba(255,252,244,0.92), 3.5px 0 0 rgba(120,95,70,0.18),
+    5px 0 0 rgba(255,252,244,0.84), 6.5px 0 0 rgba(120,95,70,0.13),
+    0 26px 36px -18px rgba(90,72,55,0.55);
+  z-index: 5;
+}
+
 input[type=range].slider { accent-color: var(--accent); }
 
 textarea.note-area {

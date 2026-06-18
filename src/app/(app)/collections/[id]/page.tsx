@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { coverGradient } from '@/lib/coverGradient'
+import { BookCover } from '@/components/BookCover'
 import { DeleteCollectionButton } from './DeleteCollectionButton'
 import { ShelfColorPicker } from './ShelfColorPicker'
 import type { Book, Collection } from '@/lib/types'
@@ -51,39 +51,8 @@ export default async function CollectionDetailPage({ params }: { params: Promise
         <div className="grid grid-cols-3 md:grid-cols-5 mt-[22px]" style={{ gap: '18px 14px' }}>
           {books.map((book) => (
             <Link key={book.id} href={`/books/${book.id}`} style={{ textDecoration: 'none', cursor: 'pointer' }}>
-              <div
-                style={{
-                  position: 'relative',
-                  width: '100%',
-                  aspectRatio: '2 / 3',
-                  borderRadius: 11,
-                  overflow: 'hidden',
-                  boxShadow: '0 12px 20px -13px rgba(90,72,55,0.5)',
-                }}
-              >
-                {book.cover_url ? (
-                  <img src={book.cover_url} alt={book.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <div
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      background: coverGradient(book.id),
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'flex-end',
-                      padding: '11px 10px',
-                    }}
-                  >
-                    <div style={{ width: 18, height: 1.5, background: 'rgba(74,61,53,0.35)', marginBottom: 6 }} />
-                    <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 13, lineHeight: 1.08, color: '#3a2e27', fontWeight: 600 }}>
-                      {book.title}
-                    </div>
-                    {book.author && (
-                      <div style={{ fontSize: 7.5, color: 'rgba(74,61,53,0.6)', marginTop: 4, fontStyle: 'italic' }}>{book.author}</div>
-                    )}
-                  </div>
-                )}
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '2 / 3' }}>
+                <BookCover book={book} radius={11} padding="11px 10px" />
               </div>
               <div className="hidden md:block" style={{ fontSize: 11, color: 'var(--ink-light)', marginTop: 8, fontStyle: 'italic', fontFamily: 'var(--font-newsreader), serif', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {book.author}

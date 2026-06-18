@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { coverGradient } from '@/lib/coverGradient'
 import { ShelfSpines } from '@/components/ShelfSpines'
 import { ReadingGoalCard } from './ReadingGoalCard'
+import { BookCover } from '@/components/BookCover'
+import { getTagsForBooks } from '@/lib/tags'
 import type { Book, Collection } from '@/lib/types'
 
 function greeting() {
@@ -36,8 +38,6 @@ export default async function DashboardPage() {
   const [
     { data: reading },
     { data: recent },
-    { count: finishedCount },
-    { count: readingCount },
     { count: tbrCount },
     { data: collectionsRaw },
     { data: finishedBooks },
@@ -45,8 +45,6 @@ export default async function DashboardPage() {
   ] = await Promise.all([
     supabase.from('books').select('id, title, author, cover_url, reading_status, owned, date_added, date_started, date_finished, created_at, updated_at, user_id, series, isbn, description, external_source, external_id').eq('reading_status', 'currently_reading').order('date_started', { ascending: false }).limit(3),
     supabase.from('books').select('id, title, author, cover_url, reading_status, owned, date_added, date_started, date_finished, created_at, updated_at, user_id, series, isbn, description, external_source, external_id').order('date_added', { ascending: false }).limit(8),
-    supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'finished'),
-    supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'currently_reading'),
     supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'not_started'),
     supabase.from('collections').select('id, name, color, created_at, user_id').order('created_at', { ascending: true }).limit(4),
     supabase.from('books').select('page_count, date_finished').eq('reading_status', 'finished'),
@@ -61,14 +59,9 @@ export default async function DashboardPage() {
   // Derived reading facts.
   const finishedRows = (finishedBooks ?? []) as { page_count: number | null; date_finished: string | null }[]
   const totalPages = finishedRows.reduce((sum, b) => sum + (b.page_count ?? 0), 0)
-  const thisYearRows = finishedRows.filter((b) => b.date_finished?.startsWith(String(year)))
-  const finishedThisYear = thisYearRows.length
-  const pagesThisYear = thisYearRows.reduce((sum, b) => sum + (b.page_count ?? 0), 0)
-  const booksWithPages = finishedRows.filter((b) => (b.page_count ?? 0) > 0).length
-  const avgLength = booksWithPages > 0 ? Math.round(totalPages / booksWithPages) : 0
+  // Books finished this calendar year (by finish date) — drives the goal + stat.
+  const finishedThisYear = finishedRows.filter((b) => b.date_finished?.startsWith(String(year))).length
   const goalTarget = (goalRow as { target: number } | null)?.target ?? null
-  // Yearly goal tracks books finished this year (by finish date). Marking a book
-  // finished stamps that date, so progress advances as the user reads.
   const goalProgress = finishedThisYear
 
   // Book membership per shelf, for the spine visuals + counts on each card.
@@ -81,6 +74,16 @@ export default async function DashboardPage() {
       .in('collection_id', collectionIds)
     for (const link of (links ?? []) as { collection_id: string; book_id: string }[]) {
       ;(booksByShelf[link.collection_id] ??= []).push(link.book_id)
+    }
+  }
+
+  // Primary genre per recently-added book, for the cover label.
+  const recentGenres: Record<string, string> = {}
+  if (recentBooks.length > 0) {
+    const tagMap = await getTagsForBooks(supabase, recentBooks.map((b) => b.id))
+    for (const b of recentBooks) {
+      const genre = (tagMap[b.id] ?? []).find((t) => t.category === 'genre')
+      if (genre) recentGenres[b.id] = genre.name
     }
   }
 
@@ -111,8 +114,8 @@ export default async function DashboardPage() {
               Currently reading
             </div>
             <Link href={`/books/${featured.id}`} style={{ marginTop: 14, background: 'var(--card)', borderRadius: 26, padding: 18, display: 'flex', gap: 18, boxShadow: '0 16px 30px -22px rgba(120,95,70,0.5)', textDecoration: 'none', border: '1px solid rgba(150,130,110,0.08)' }}>
-              <div style={{ flex: 'none', width: 104, height: 156, borderRadius: 14, overflow: 'hidden', boxShadow: '0 12px 22px -12px rgba(90,72,55,0.45)' }}>
-                <MiniCover book={featured} />
+              <div style={{ flex: 'none', width: 104, height: 156 }}>
+                <BookCover book={featured} genre={recentGenres[featured.id]} radius={14} />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '2px 0' }}>
                 <div>
@@ -137,8 +140,8 @@ export default async function DashboardPage() {
 
           {/* Desktop hero */}
           <Link href={`/books/${featured.id}`} className="hidden md:flex" style={{ background: 'var(--card)', borderRadius: 28, padding: '28px 32px', gap: 32, cursor: 'pointer', boxShadow: '0 20px 48px -28px rgba(120,95,70,0.4)', border: '1px solid rgba(150,130,110,0.07)', marginBottom: 24, textDecoration: 'none' }}>
-            <div style={{ position: 'relative', flexShrink: 0, width: 130, height: 195, borderRadius: 16, overflow: 'hidden', boxShadow: '0 18px 32px -16px rgba(90,72,55,0.5)' }}>
-              <MiniCover book={featured} />
+            <div style={{ position: 'relative', flexShrink: 0, width: 130, height: 195 }}>
+              <BookCover book={featured} genre={recentGenres[featured.id]} radius={16} />
             </div>
             <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '4px 0' }}>
               <div>
@@ -173,51 +176,30 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Reading goal */}
-      <div className="mt-[26px] md:mt-0 md:mb-6">
+      {/* Reading goal — mobile only; desktop shows it in the sidebar */}
+      <div className="mt-[26px] md:hidden">
         <ReadingGoalCard year={year} target={goalTarget} finished={goalProgress} />
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:mb-9">
-        {/* Mobile stat */}
-        <div className="md:hidden col-span-3" style={{ background: 'linear-gradient(135deg, #E9F0E3 0%, #E7EEE9 55%, #EDEBF1 100%)', borderRadius: 26, padding: '22px 22px 20px' }}>
-          <div style={{ fontSize: 12, letterSpacing: '1.4px', textTransform: 'uppercase', color: '#8a9a86', fontWeight: 700 }}>Your library</div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
-            {[{ label: 'finished', val: finishedCount ?? 0 }, { label: 'reading', val: readingCount ?? 0 }, { label: 'to read', val: tbrCount ?? 0 }].map((s) => (
-              <div key={s.label} style={{ textAlign: 'center', flex: 1 }}>
-                <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 32, color: 'var(--sage)', fontWeight: 500, lineHeight: 1 }}>{s.val}</div>
-                <div style={{ fontSize: 11, color: '#8a9a86', marginTop: 6, fontWeight: 600 }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-        {/* Desktop stats — 3 separate cards */}
-        <div className="hidden md:flex" style={{ background: 'linear-gradient(135deg,#E9F0E3,#E7EEE9)', borderRadius: 22, padding: '22px 26px', alignItems: 'center', gap: 18 }}>
-          <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 44, color: '#5b7a5a', fontWeight: 400, lineHeight: 1 }}>{finishedCount ?? 0}</div>
-          <div><div style={{ fontSize: 14, fontWeight: 700, color: '#5b7a5a' }}>books read</div><div style={{ fontSize: 12, color: '#8a9a86', marginTop: 3 }}>this year</div></div>
-        </div>
-        <div className="hidden md:flex" style={{ background: 'linear-gradient(135deg,#F5E8DC,#EFE2D2)', borderRadius: 22, padding: '22px 26px', alignItems: 'center', gap: 18 }}>
-          <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 44, color: '#C9845A', fontWeight: 400, lineHeight: 1 }}>{readingCount ?? 0}</div>
-          <div><div style={{ fontSize: 14, fontWeight: 700, color: '#C9845A' }}>reading</div><div style={{ fontSize: 12, color: '#C9A18A', marginTop: 3 }}>right now</div></div>
-        </div>
-        <div className="hidden md:flex" style={{ background: 'linear-gradient(135deg,#EDE8F2,#E8E2EF)', borderRadius: 22, padding: '22px 26px', alignItems: 'center', gap: 18 }}>
-          <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 44, color: '#8878A8', fontWeight: 400, lineHeight: 1 }}>{tbrCount ?? 0}</div>
-          <div><div style={{ fontSize: 14, fontWeight: 700, color: '#8878A8' }}>to read</div><div style={{ fontSize: 12, color: '#AFA0C8', marginTop: 3 }}>on the list</div></div>
-        </div>
-      </div>
-
-      {/* By the numbers — derived reading facts */}
-      <div className="grid grid-cols-3 gap-3 md:gap-4 mt-4 md:mb-9">
+      {/* Stats — three at-a-glance cards */}
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mt-4 md:mt-0 md:mb-9">
         {[
-          { val: totalPages.toLocaleString(), label: 'pages read', sub: 'all time' },
-          { val: pagesThisYear > 0 ? pagesThisYear.toLocaleString() : (finishedCount ?? 0).toString(), label: pagesThisYear > 0 ? 'pages' : 'books read', sub: pagesThisYear > 0 ? `in ${year}` : 'all time' },
-          { val: avgLength > 0 ? avgLength.toLocaleString() : '—', label: 'avg length', sub: 'pages / book' },
-        ].map((f) => (
-          <div key={f.label} style={{ background: 'var(--card)', borderRadius: 18, padding: '16px 14px', border: '1px solid rgba(150,130,110,0.1)', textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 26, color: 'var(--ink)', fontWeight: 500, lineHeight: 1 }} className="md:text-[32px]">{f.val}</div>
-            <div style={{ fontSize: 12, color: 'var(--ink-light)', marginTop: 7, fontWeight: 600 }}>{f.label}</div>
-            <div style={{ fontSize: 10.5, color: '#B3A595', marginTop: 2 }}>{f.sub}</div>
+          { val: finishedThisYear.toLocaleString(), label: 'books read', sub: 'this year', bg: 'linear-gradient(135deg,#E9F0E3,#E7EEE9)', num: '#5b7a5a', strong: '#5b7a5a', soft: '#8a9a86' },
+          { val: totalPages.toLocaleString(), label: 'pages', sub: 'turned', bg: 'linear-gradient(135deg,#F5E8DC,#EFE2D2)', num: '#C9845A', strong: '#C9845A', soft: '#C9A18A' },
+          { val: (tbrCount ?? 0).toLocaleString(), label: 'to read', sub: 'on the list', bg: 'linear-gradient(135deg,#EDE8F2,#E8E2EF)', num: '#8878A8', strong: '#8878A8', soft: '#AFA0C8' },
+        ].map((s) => (
+          <div
+            key={s.label}
+            className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4"
+            style={{ background: s.bg, borderRadius: 20, padding: '18px 16px' }}
+          >
+            <div style={{ fontFamily: 'var(--font-newsreader), serif', color: s.num, fontWeight: 400, lineHeight: 1 }} className="text-[30px] md:text-[44px]">
+              {s.val}
+            </div>
+            <div>
+              <div style={{ fontSize: 13.5, fontWeight: 700, color: s.strong }} className="md:text-[14px]">{s.label}</div>
+              <div style={{ fontSize: 11.5, color: s.soft, marginTop: 2 }} className="md:text-[12px]">{s.sub}</div>
+            </div>
           </div>
         ))}
       </div>
@@ -230,11 +212,11 @@ export default async function DashboardPage() {
         <Link href="/library" style={{ fontSize: 13, color: 'var(--accent)', fontWeight: 600, textDecoration: 'none' }}>See all →</Link>
       </div>
       {recentBooks.length > 0 ? (
-        <div className="no-scrollbar" style={{ margin: '14px -22px 0', padding: '4px 22px', display: 'flex', gap: 14, overflowX: 'auto' }}>
+        <div className="no-scrollbar" style={{ margin: '8px -22px 0', padding: '12px 22px 22px', display: 'flex', gap: 16, overflowX: 'auto' }}>
           {recentBooks.map((book) => (
             <Link key={book.id} href={`/books/${book.id}`} style={{ flexShrink: 0, width: 108, textDecoration: 'none' }} className="md:w-[124px]">
-              <div style={{ width: '100%', height: 162, borderRadius: 13, overflow: 'hidden', boxShadow: '0 12px 22px -14px rgba(90,72,55,0.5)' }} className="md:h-[186px] md:rounded-[14px]">
-                <MiniCover book={book} />
+              <div style={{ width: '100%', height: 162 }} className="md:h-[186px]">
+                <BookCover book={book} genre={recentGenres[book.id]} />
               </div>
             </Link>
           ))}

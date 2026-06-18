@@ -1,11 +1,11 @@
 # Graph Report - C:\Users\user-pc\Lindy's book tracker  (2026-06-18)
 
 ## Corpus Check
-- 64 files · ~35,528 words
+- 66 files · ~36,024 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 153 nodes · 177 edges · 45 communities detected
+- 156 nodes · 178 edges · 47 communities detected
 - Extraction: 61% EXTRACTED · 39% INFERRED · 0% AMBIGUOUS · INFERRED: 69 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
@@ -55,6 +55,8 @@
 - [[_COMMUNITY_Community 42|Community 42]]
 - [[_COMMUNITY_Community 43|Community 43]]
 - [[_COMMUNITY_Community 44|Community 44]]
+- [[_COMMUNITY_Community 45|Community 45]]
+- [[_COMMUNITY_Community 46|Community 46]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `createClient()` - 30 edges
@@ -262,6 +264,14 @@ Nodes (0):
 Cohesion: 1.0
 Nodes (0): 
 
+### Community 45 - "Community 45"
+Cohesion: 1.0
+Nodes (0): 
+
+### Community 46 - "Community 46"
+Cohesion: 1.0
+Nodes (0): 
+
 ## Knowledge Gaps
 - **Thin community `Community 9`** (2 nodes): `screenshot.mjs`, `shot()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
@@ -281,70 +291,74 @@ Nodes (0):
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 17`** (2 nodes): `BottomNav()`, `BottomNav.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 18`** (2 nodes): `Badge()`, `Badge.tsx`
+- **Thin community `Community 18`** (2 nodes): `SidebarGoal.tsx`, `save()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 19`** (2 nodes): `Button()`, `Button.tsx`
+- **Thin community `Community 19`** (2 nodes): `Badge()`, `Badge.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 20`** (2 nodes): `shelfColors.ts`, `hexToRgba()`
+- **Thin community `Community 20`** (2 nodes): `Button()`, `Button.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 21`** (2 nodes): `client.ts`, `createClient()`
+- **Thin community `Community 21`** (2 nodes): `shelfColors.ts`, `hexToRgba()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 22`** (1 nodes): `eslint.config.mjs`
+- **Thin community `Community 22`** (2 nodes): `client.ts`, `createClient()`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 23`** (1 nodes): `next-env.d.ts`
+- **Thin community `Community 23`** (1 nodes): `eslint.config.mjs`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 24`** (1 nodes): `next.config.ts`
+- **Thin community `Community 24`** (1 nodes): `next-env.d.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 25`** (1 nodes): `postcss.config.mjs`
+- **Thin community `Community 25`** (1 nodes): `next.config.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 26`** (1 nodes): `screenshot-colorpicker.mjs`
+- **Thin community `Community 26`** (1 nodes): `postcss.config.mjs`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 27`** (1 nodes): `screenshot-loader.mjs`
+- **Thin community `Community 27`** (1 nodes): `screenshot-colorpicker.mjs`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 28`** (1 nodes): `layout.tsx`
+- **Thin community `Community 28`** (1 nodes): `screenshot-loader.mjs`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 29`** (1 nodes): `layout.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 30`** (1 nodes): `page.tsx`
+- **Thin community `Community 30`** (1 nodes): `layout.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 31`** (1 nodes): `CustomColorSwatch.tsx`
+- **Thin community `Community 31`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 32`** (1 nodes): `NewCollectionForm.tsx`
+- **Thin community `Community 32`** (1 nodes): `CustomColorSwatch.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 33`** (1 nodes): `page.tsx`
+- **Thin community `Community 33`** (1 nodes): `NewCollectionForm.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 34`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 35`** (1 nodes): `ShelfColorPicker.tsx`
+- **Thin community `Community 35`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 36`** (1 nodes): `page.tsx`
+- **Thin community `Community 36`** (1 nodes): `ShelfColorPicker.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 37`** (1 nodes): `layout.tsx`
+- **Thin community `Community 37`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 38`** (1 nodes): `page.tsx`
+- **Thin community `Community 38`** (1 nodes): `layout.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 - **Thin community `Community 39`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 40`** (1 nodes): `Sidebar.tsx`
+- **Thin community `Community 40`** (1 nodes): `page.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 41`** (1 nodes): `SidebarNav.tsx`
+- **Thin community `Community 41`** (1 nodes): `BookCover.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 42`** (1 nodes): `Input.tsx`
+- **Thin community `Community 42`** (1 nodes): `Sidebar.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 43`** (1 nodes): `Select.tsx`
+- **Thin community `Community 43`** (1 nodes): `SidebarNav.tsx`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
-- **Thin community `Community 44`** (1 nodes): `types.ts`
+- **Thin community `Community 44`** (1 nodes): `Input.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 45`** (1 nodes): `Select.tsx`
+  Too small to be a meaningful cluster - may be noise or needs more connections extracted.
+- **Thin community `Community 46`** (1 nodes): `types.ts`
   Too small to be a meaningful cluster - may be noise or needs more connections extracted.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `createClient()` connect `Community 0` to `Community 1`, `Community 3`?**
-  _High betweenness centrality (0.142) - this node is a cross-community bridge._
-- **Why does `GET()` connect `Community 1` to `Community 0`, `Community 3`, `Community 4`?**
   _High betweenness centrality (0.136) - this node is a cross-community bridge._
+- **Why does `GET()` connect `Community 1` to `Community 0`, `Community 3`, `Community 4`?**
+  _High betweenness centrality (0.131) - this node is a cross-community bridge._
 - **Why does `push()` connect `Community 2` to `Community 4`?**
-  _High betweenness centrality (0.134) - this node is a cross-community bridge._
+  _High betweenness centrality (0.128) - this node is a cross-community bridge._
 - **Are the 29 inferred relationships involving `createClient()` (e.g. with `updateProfile()` and `changePassword()`) actually correct?**
   _`createClient()` has 29 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 18 inferred relationships involving `GET()` (e.g. with `updateProfile()` and `changePassword()`) actually correct?**
