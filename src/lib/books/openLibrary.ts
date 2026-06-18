@@ -141,6 +141,7 @@ export async function searchOpenLibrary(query: string, opts: SearchOpts = {}): P
       source: 'openlibrary' as const,
       externalId: doc.key,
       categories: [], // OpenLibrary subjects are too noisy to auto-tag; add tags manually
+      pageCount: null, // OL page counts live on editions, not the work; left unset
     }
   })
 }

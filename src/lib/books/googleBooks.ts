@@ -10,6 +10,7 @@ interface GoogleVolume {
     description?: string
     imageLinks?: { thumbnail?: string }
     categories?: string[]
+    pageCount?: number
   }
 }
 
@@ -74,6 +75,7 @@ function volumeToExternalBook(item: GoogleVolume): ExternalBook {
     source: 'google' as const,
     externalId: item.id,
     categories: parseCategories(info.categories),
+    pageCount: typeof info.pageCount === 'number' && info.pageCount > 0 ? info.pageCount : null,
   }
 }
 

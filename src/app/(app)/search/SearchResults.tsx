@@ -89,11 +89,18 @@ export function SearchResults() {
   }
 
   function addBook(book: ExternalBook) {
+    // Optimistic: flip the card to "Added ✓" immediately so the action's
+    // server round-trip (and background enrichment) isn't felt. Revert on error.
+    setAddedIds((prev) => new Set(prev).add(book.externalId))
+    setError(null)
     startTransition(async () => {
       const result = await importSearchResult(book)
-      if ('id' in result) {
-        setAddedIds((prev) => new Set(prev).add(book.externalId))
-      } else {
+      if ('error' in result) {
+        setAddedIds((prev) => {
+          const next = new Set(prev)
+          next.delete(book.externalId)
+          return next
+        })
         setError(result.error)
       }
     })

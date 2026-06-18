@@ -34,8 +34,13 @@ interface Props {
 }
 
 export function BookDetail({ book, ratings, notes, collections, memberCollectionIds, bookTags, allTags, userId }: Props) {
+  const today = new Date().toISOString().slice(0, 10)
   const [status, setStatus] = useState<ReadingStatus>(book.reading_status)
   const [owned, setOwned] = useState(book.owned)
+  const [pages, setPages] = useState<string>(book.page_count != null ? String(book.page_count) : '')
+  // When the book was finished — editable so reads can be backdated. Defaults to
+  // its existing finish date, or today for a book being marked read now.
+  const [finishedOn, setFinishedOn] = useState<string>(book.date_finished ?? today)
   const [saving, setSaving] = useState(false)
 
   const ratingMap = Object.fromEntries(ratings.map((r) => [r.category, r.score]))
@@ -55,9 +60,19 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
 
   async function saveDetails() {
     setSaving(true)
+    const parsed = parseInt(pages, 10)
+    const pageCount = Number.isFinite(parsed) && parsed > 0 ? parsed : null
+    const patch: Record<string, unknown> = { reading_status: status, owned, page_count: pageCount }
+    // Record when the book was read — uses the (editable) finish-date field, so
+    // it can be backdated. This date drives the dashboard's reading goal. A book
+    // marked finished without a date defaults to today; non-finished books keep
+    // their existing date untouched.
+    if (status === 'finished') patch.date_finished = finishedOn || today
+    // Fill in a start date on first transition to reading, but never overwrite one.
+    if (status === 'currently_reading' && !book.date_started) patch.date_started = today
     const supabase = createClient()
     // Supabase query builders are lazy — they only run when awaited.
-    await supabase.from('books').update({ reading_status: status, owned }).eq('id', book.id)
+    await supabase.from('books').update(patch).eq('id', book.id)
     setSaving(false)
   }
 
@@ -234,6 +249,34 @@ export function BookDetail({ book, ratings, notes, collections, memberCollection
               </button>
             ))}
           </div>
+
+          {/* Pages */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 12, background: 'var(--card)', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(150,130,110,0.12)' }}>
+            <span style={{ fontSize: 13, color: '#7a6a5e', fontWeight: 600 }}>Pages</span>
+            <input
+              type="number"
+              min="1"
+              inputMode="numeric"
+              value={pages}
+              onChange={(e) => setPages(e.target.value)}
+              placeholder="—"
+              style={{ width: 90, textAlign: 'right', background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: 'var(--ink)', fontFamily: 'var(--font-mulish), sans-serif' }}
+            />
+          </div>
+
+          {/* Finished on — only relevant once a book is marked read */}
+          {status === 'finished' && (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginTop: 10, background: 'var(--card)', borderRadius: 12, padding: '10px 14px', border: '1px solid rgba(150,130,110,0.12)' }}>
+              <span style={{ fontSize: 13, color: '#7a6a5e', fontWeight: 600 }}>Finished on</span>
+              <input
+                type="date"
+                value={finishedOn}
+                max={today}
+                onChange={(e) => setFinishedOn(e.target.value)}
+                style={{ background: 'transparent', border: 'none', outline: 'none', fontSize: 14, color: 'var(--ink)', fontFamily: 'var(--font-mulish), sans-serif' }}
+              />
+            </div>
+          )}
 
           <button
             onClick={saveDetails}

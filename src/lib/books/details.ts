@@ -11,6 +11,7 @@ export interface ExternalBookDetail {
   coverUrl: string | null
   isbn: string | null
   genres: string[]
+  pageCount: number | null
 }
 
 /** Clean, slash-free id for use in routes. OpenLibrary -> OLID; Google -> id. */
@@ -42,6 +43,7 @@ export async function getExternalBookDetails(
       coverUrl: b.coverUrl,
       isbn: b.isbn,
       genres: b.categories,
+      pageCount: b.pageCount,
     }
   }
 
@@ -57,6 +59,7 @@ export async function getExternalBookDetails(
       coverUrl: w.coverUrl,
       isbn: null,
       genres: w.genres,
+      pageCount: null,
     }
   }
 

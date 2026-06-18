@@ -27,6 +27,7 @@ async function addToLibrary(formData: FormData) {
     source: detail.source,
     externalId: detail.externalId,
     categories: detail.genres,
+    pageCount: detail.pageCount,
   })
   if ('error' in result) redirect(`/search/${source}/${encodeURIComponent(id)}?error=1`)
   redirect(`/books/${result.id}`)

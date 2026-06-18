@@ -25,6 +25,9 @@ async function createBook(formData: FormData) {
   const title = (formData.get('title') as string).trim()
   if (!title) redirect('/books/new?error=Title+is+required')
 
+  const pagesRaw = parseInt((formData.get('page_count') as string) || '', 10)
+  const pageCount = Number.isFinite(pagesRaw) && pagesRaw > 0 ? pagesRaw : null
+
   const { data, error } = await supabase.from('books').insert({
     user_id: user.id,
     title,
@@ -33,6 +36,7 @@ async function createBook(formData: FormData) {
     description: (formData.get('description') as string).trim() || null,
     cover_url: coverUrl,
     external_source: 'manual',
+    page_count: pageCount,
   }).select('id').single()
 
   if (error) redirect(`/books/new?error=${encodeURIComponent(error.message)}`)
@@ -95,6 +99,12 @@ export default async function NewBookPage({ searchParams }: { searchParams: Prom
             Series
           </label>
           <input name="series" placeholder="Series name (optional)" style={inputStyle} />
+        </div>
+        <div>
+          <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>
+            Pages
+          </label>
+          <input name="page_count" type="number" min="1" inputMode="numeric" placeholder="Number of pages (optional)" style={inputStyle} />
         </div>
         <div>
           <label style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--ink-light)', display: 'block', marginBottom: 6 }}>

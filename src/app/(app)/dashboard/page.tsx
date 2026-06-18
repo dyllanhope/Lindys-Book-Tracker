@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { coverGradient } from '@/lib/coverGradient'
+import { ShelfSpines } from '@/components/ShelfSpines'
+import { ReadingGoalCard } from './ReadingGoalCard'
 import type { Book, Collection } from '@/lib/types'
 
 function greeting() {
@@ -29,6 +31,8 @@ function MiniCover({ book }: { book: Pick<Book, 'id' | 'title' | 'cover_url'> })
 export default async function DashboardPage() {
   const supabase = await createClient()
 
+  const year = new Date().getFullYear()
+
   const [
     { data: reading },
     { data: recent },
@@ -36,6 +40,8 @@ export default async function DashboardPage() {
     { count: readingCount },
     { count: tbrCount },
     { data: collectionsRaw },
+    { data: finishedBooks },
+    { data: goalRow },
   ] = await Promise.all([
     supabase.from('books').select('id, title, author, cover_url, reading_status, owned, date_added, date_started, date_finished, created_at, updated_at, user_id, series, isbn, description, external_source, external_id').eq('reading_status', 'currently_reading').order('date_started', { ascending: false }).limit(3),
     supabase.from('books').select('id, title, author, cover_url, reading_status, owned, date_added, date_started, date_finished, created_at, updated_at, user_id, series, isbn, description, external_source, external_id').order('date_added', { ascending: false }).limit(8),
@@ -43,12 +49,40 @@ export default async function DashboardPage() {
     supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'currently_reading'),
     supabase.from('books').select('*', { count: 'exact', head: true }).eq('reading_status', 'not_started'),
     supabase.from('collections').select('id, name, color, created_at, user_id').order('created_at', { ascending: true }).limit(4),
+    supabase.from('books').select('page_count, date_finished').eq('reading_status', 'finished'),
+    supabase.from('reading_goals').select('target').eq('year', year).maybeSingle(),
   ])
 
   const featured = reading?.[0] as Book | undefined
   const second = reading?.[1] as Book | undefined
   const recentBooks = (recent ?? []) as Book[]
   const collections = (collectionsRaw ?? []) as Collection[]
+
+  // Derived reading facts.
+  const finishedRows = (finishedBooks ?? []) as { page_count: number | null; date_finished: string | null }[]
+  const totalPages = finishedRows.reduce((sum, b) => sum + (b.page_count ?? 0), 0)
+  const thisYearRows = finishedRows.filter((b) => b.date_finished?.startsWith(String(year)))
+  const finishedThisYear = thisYearRows.length
+  const pagesThisYear = thisYearRows.reduce((sum, b) => sum + (b.page_count ?? 0), 0)
+  const booksWithPages = finishedRows.filter((b) => (b.page_count ?? 0) > 0).length
+  const avgLength = booksWithPages > 0 ? Math.round(totalPages / booksWithPages) : 0
+  const goalTarget = (goalRow as { target: number } | null)?.target ?? null
+  // Yearly goal tracks books finished this year (by finish date). Marking a book
+  // finished stamps that date, so progress advances as the user reads.
+  const goalProgress = finishedThisYear
+
+  // Book membership per shelf, for the spine visuals + counts on each card.
+  const collectionIds = collections.map((c) => c.id)
+  const booksByShelf: Record<string, string[]> = {}
+  if (collectionIds.length > 0) {
+    const { data: links } = await supabase
+      .from('collection_books')
+      .select('collection_id, book_id')
+      .in('collection_id', collectionIds)
+    for (const link of (links ?? []) as { collection_id: string; book_id: string }[]) {
+      ;(booksByShelf[link.collection_id] ??= []).push(link.book_id)
+    }
+  }
 
   return (
     <div className="pt-[62px] px-[22px] pb-4 md:pt-10 md:px-12 md:pb-[60px] fade-up">
@@ -139,8 +173,13 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* Reading goal */}
+      <div className="mt-[26px] md:mt-0 md:mb-6">
+        <ReadingGoalCard year={year} target={goalTarget} finished={goalProgress} />
+      </div>
+
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mt-[26px] md:mt-0 md:mb-9">
+      <div className="grid grid-cols-3 gap-4 mt-4 md:mt-0 md:mb-9">
         {/* Mobile stat */}
         <div className="md:hidden col-span-3" style={{ background: 'linear-gradient(135deg, #E9F0E3 0%, #E7EEE9 55%, #EDEBF1 100%)', borderRadius: 26, padding: '22px 22px 20px' }}>
           <div style={{ fontSize: 12, letterSpacing: '1.4px', textTransform: 'uppercase', color: '#8a9a86', fontWeight: 700 }}>Your library</div>
@@ -166,6 +205,21 @@ export default async function DashboardPage() {
           <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 44, color: '#8878A8', fontWeight: 400, lineHeight: 1 }}>{tbrCount ?? 0}</div>
           <div><div style={{ fontSize: 14, fontWeight: 700, color: '#8878A8' }}>to read</div><div style={{ fontSize: 12, color: '#AFA0C8', marginTop: 3 }}>on the list</div></div>
         </div>
+      </div>
+
+      {/* By the numbers — derived reading facts */}
+      <div className="grid grid-cols-3 gap-3 md:gap-4 mt-4 md:mb-9">
+        {[
+          { val: totalPages.toLocaleString(), label: 'pages read', sub: 'all time' },
+          { val: pagesThisYear > 0 ? pagesThisYear.toLocaleString() : (finishedCount ?? 0).toString(), label: pagesThisYear > 0 ? 'pages' : 'books read', sub: pagesThisYear > 0 ? `in ${year}` : 'all time' },
+          { val: avgLength > 0 ? avgLength.toLocaleString() : '—', label: 'avg length', sub: 'pages / book' },
+        ].map((f) => (
+          <div key={f.label} style={{ background: 'var(--card)', borderRadius: 18, padding: '16px 14px', border: '1px solid rgba(150,130,110,0.1)', textAlign: 'center' }}>
+            <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 26, color: 'var(--ink)', fontWeight: 500, lineHeight: 1 }} className="md:text-[32px]">{f.val}</div>
+            <div style={{ fontSize: 12, color: 'var(--ink-light)', marginTop: 7, fontWeight: 600 }}>{f.label}</div>
+            <div style={{ fontSize: 10.5, color: '#B3A595', marginTop: 2 }}>{f.sub}</div>
+          </div>
+        ))}
       </div>
 
       {/* Recently Added */}
@@ -204,10 +258,12 @@ export default async function DashboardPage() {
           <div className="no-scrollbar flex md:hidden" style={{ margin: '14px -22px 0', padding: '4px 22px', gap: 14, overflowX: 'auto' }}>
             {collections.map((col) => (
               <Link key={col.id} href={`/collections/${col.id}`} style={{ flexShrink: 0, width: 172, background: 'var(--card)', borderRadius: 22, padding: 16, textDecoration: 'none', border: '1px solid rgba(150,130,110,0.08)', borderLeft: `4px solid ${col.color}`, boxShadow: '0 12px 24px -20px rgba(120,95,70,0.5)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <ShelfSpines bookIds={booksByShelf[col.id] ?? []} height={50} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 99, background: col.color, flexShrink: 0 }} />
                   <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500 }}>{col.name}</div>
                 </div>
+                <div style={{ fontSize: 11.5, color: 'var(--ink-light)', marginTop: 4 }}>{(booksByShelf[col.id] ?? []).length} {(booksByShelf[col.id] ?? []).length === 1 ? 'book' : 'books'}</div>
               </Link>
             ))}
           </div>
@@ -215,10 +271,12 @@ export default async function DashboardPage() {
           <div className="hidden md:grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginTop: 18 }}>
             {collections.map((col) => (
               <Link key={col.id} href={`/collections/${col.id}`} style={{ background: 'var(--card)', borderRadius: 22, padding: 18, textDecoration: 'none', border: '1px solid rgba(150,130,110,0.08)', borderLeft: `4px solid ${col.color}`, boxShadow: '0 12px 24px -20px rgba(120,95,70,0.5)', display: 'block' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <ShelfSpines bookIds={booksByShelf[col.id] ?? []} height={54} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
                   <span style={{ width: 10, height: 10, borderRadius: 99, background: col.color, flexShrink: 0 }} />
                   <div style={{ fontFamily: 'var(--font-newsreader), serif', fontSize: 17, color: 'var(--ink)', fontWeight: 500, lineHeight: 1.2 }}>{col.name}</div>
                 </div>
+                <div style={{ fontSize: 11.5, color: 'var(--ink-light)', marginTop: 4 }}>{(booksByShelf[col.id] ?? []).length} {(booksByShelf[col.id] ?? []).length === 1 ? 'book' : 'books'}</div>
               </Link>
             ))}
           </div>

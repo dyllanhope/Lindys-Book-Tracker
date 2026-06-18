@@ -16,9 +16,19 @@ export interface Book {
   external_id: string | null
   owned: boolean
   reading_status: ReadingStatus
+  page_count: number | null
   date_added: string
   date_started: string | null
   date_finished: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface ReadingGoal {
+  id: string
+  user_id: string
+  year: number
+  target: number
   created_at: string
   updated_at: string
 }
@@ -77,4 +87,5 @@ export interface ExternalBook {
   source: ExternalSource
   externalId: string
   categories: string[]
+  pageCount: number | null
 }
